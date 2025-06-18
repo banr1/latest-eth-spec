@@ -35,7 +35,9 @@ def load_preset(preset_files: Iterable[Path | BinaryIO | TextIO]) -> dict[str, A
             continue
         if not set(fork_preset.keys()).isdisjoint(preset.keys()):
             duplicates = set(fork_preset.keys()).intersection(set(preset.keys()))
-            raise Exception(f"duplicate config var(s) in preset files: {', '.join(duplicates)}")
+            raise Exception(
+                f"duplicate config var(s) in preset files: {', '.join(duplicates)}"
+            )
         preset.update(fork_preset)
     assert preset != {}
     return parse_config_vars(preset)

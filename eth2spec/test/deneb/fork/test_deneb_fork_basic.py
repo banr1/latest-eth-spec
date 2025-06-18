@@ -61,7 +61,9 @@ def test_fork_many_next_epoch(spec, phases, state):
 
 
 @with_phases(phases=[CAPELLA], other_phases=[DENEB])
-@with_custom_state(balances_fn=low_balances, threshold_fn=lambda spec: spec.config.EJECTION_BALANCE)
+@with_custom_state(
+    balances_fn=low_balances, threshold_fn=lambda spec: spec.config.EJECTION_BALANCE
+)
 @spec_test
 @with_meta_tags(DENEB_FORK_TEST_META_TAGS)
 def test_fork_random_low_balances(spec, phases, state):
@@ -84,7 +86,8 @@ def test_fork_random_misc_balances(spec, phases, state):
     reason="mainnet config leads to larger validator set than limit of public/private keys pre-generated",
 )
 @with_custom_state(
-    balances_fn=large_validator_set, threshold_fn=lambda spec: spec.config.EJECTION_BALANCE
+    balances_fn=large_validator_set,
+    threshold_fn=lambda spec: spec.config.EJECTION_BALANCE,
 )
 @spec_test
 @with_meta_tags(DENEB_FORK_TEST_META_TAGS)

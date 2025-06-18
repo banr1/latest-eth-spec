@@ -10,7 +10,11 @@ def get_valid_attester_slashing(
     spec, state, slot=None, signed_1=False, signed_2=False, filter_participant_set=None
 ):
     attestation_1 = get_valid_attestation(
-        spec, state, slot=slot, signed=signed_1, filter_participant_set=filter_participant_set
+        spec,
+        state,
+        slot=slot,
+        signed=signed_1,
+        filter_participant_set=filter_participant_set,
     )
 
     attestation_2 = attestation_1.copy()

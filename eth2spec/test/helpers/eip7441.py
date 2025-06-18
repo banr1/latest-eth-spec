@@ -56,7 +56,9 @@ def compute_whisk_tracker(k: int, r: int) -> WhiskTracker:
     return WhiskTracker(g1point_to_bytes(r_G), g1point_to_bytes(k_r_G))
 
 
-def compute_whisk_tracker_and_commitment(k: int, r: int) -> tuple[WhiskTracker, BLSPubkey]:
+def compute_whisk_tracker_and_commitment(
+    k: int, r: int
+) -> tuple[WhiskTracker, BLSPubkey]:
     k_G = G1 * Scalar(k)
     r_G = G1 * Scalar(r)
     k_r_G = r_G * Scalar(k)

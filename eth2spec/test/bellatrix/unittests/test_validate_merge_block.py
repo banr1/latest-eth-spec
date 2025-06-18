@@ -58,7 +58,9 @@ def run_validate_merge_block(spec, pow_chain, beacon_block, valid=True):
 @spec_state_test
 def test_validate_merge_block_success(spec, state):
     pow_chain = prepare_random_pow_chain(spec, 2)
-    pow_chain.head(-1).total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    pow_chain.head(-1).total_difficulty = (
+        spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    )
     pow_chain.head().total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY
     block = build_empty_block_for_next_slot(spec, state)
     if is_post_eip7732(spec):
@@ -66,8 +68,8 @@ def test_validate_merge_block_success(spec, state):
         block.body.signed_execution_payload_header.message.parent_block_hash = (
             pow_chain.head().block_hash
         )
-        block.body.signed_execution_payload_header.message.block_hash = compute_el_block_hash(
-            spec, payload, state
+        block.body.signed_execution_payload_header.message.block_hash = (
+            compute_el_block_hash(spec, payload, state)
         )
     else:
         block.body.execution_payload.parent_hash = pow_chain.head().block_hash
@@ -82,7 +84,9 @@ def test_validate_merge_block_success(spec, state):
 @spec_state_test
 def test_validate_merge_block_fail_block_lookup(spec, state):
     pow_chain = prepare_random_pow_chain(spec, 2)
-    pow_chain.head(-1).total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    pow_chain.head(-1).total_difficulty = (
+        spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    )
     pow_chain.head().total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY
     block = build_empty_block_for_next_slot(spec, state)
     run_validate_merge_block(spec, pow_chain, block, valid=False)
@@ -99,8 +103,8 @@ def test_validate_merge_block_fail_parent_block_lookup(spec, state):
         block.body.signed_execution_payload_header.message.parent_block_hash = (
             pow_chain.head().block_hash
         )
-        block.body.signed_execution_payload_header.message.block_hash = compute_el_block_hash(
-            spec, payload, state
+        block.body.signed_execution_payload_header.message.block_hash = (
+            compute_el_block_hash(spec, payload, state)
         )
     else:
         block.body.execution_payload.parent_hash = pow_chain.head().block_hash
@@ -116,15 +120,17 @@ def test_validate_merge_block_fail_parent_block_lookup(spec, state):
 def test_validate_merge_block_fail_after_terminal(spec, state):
     pow_chain = prepare_random_pow_chain(spec, 2)
     pow_chain.head(-1).total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY
-    pow_chain.head().total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY + uint256(1)
+    pow_chain.head().total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY + uint256(
+        1
+    )
     block = build_empty_block_for_next_slot(spec, state)
     if is_post_eip7732(spec):
         payload = build_empty_execution_payload(spec, state)
         block.body.signed_execution_payload_header.message.parent_block_hash = (
             pow_chain.head().block_hash
         )
-        block.body.signed_execution_payload_header.message.block_hash = compute_el_block_hash(
-            spec, payload, state
+        block.body.signed_execution_payload_header.message.block_hash = (
+            compute_el_block_hash(spec, payload, state)
         )
     else:
         block.body.execution_payload.parent_hash = pow_chain.head().block_hash
@@ -145,8 +151,12 @@ def test_validate_merge_block_fail_after_terminal(spec, state):
 def test_validate_merge_block_tbh_override_success(spec, state):
     pow_chain = prepare_random_pow_chain(spec, 2)
     # should fail if TTD check is reached
-    pow_chain.head(-1).total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(2)
-    pow_chain.head().total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    pow_chain.head(-1).total_difficulty = (
+        spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(2)
+    )
+    pow_chain.head().total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(
+        1
+    )
     pow_chain.head().block_hash = TERMINAL_BLOCK_HASH
     block = build_empty_block_for_next_slot(spec, state)
     if is_post_eip7732(spec):
@@ -154,8 +164,8 @@ def test_validate_merge_block_tbh_override_success(spec, state):
         block.body.signed_execution_payload_header.message.parent_block_hash = (
             pow_chain.head().block_hash
         )
-        block.body.signed_execution_payload_header.message.block_hash = compute_el_block_hash(
-            spec, payload, state
+        block.body.signed_execution_payload_header.message.block_hash = (
+            compute_el_block_hash(spec, payload, state)
         )
     else:
         block.body.execution_payload.parent_hash = pow_chain.head().block_hash
@@ -176,7 +186,9 @@ def test_validate_merge_block_tbh_override_success(spec, state):
 def test_validate_merge_block_fail_parent_hash_is_not_tbh(spec, state):
     pow_chain = prepare_random_pow_chain(spec, 2)
     # shouldn't fail if TTD check is reached
-    pow_chain.head(-1).total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    pow_chain.head(-1).total_difficulty = (
+        spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    )
     pow_chain.head().total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY
     block = build_empty_block_for_next_slot(spec, state)
     if is_post_eip7732(spec):
@@ -184,8 +196,8 @@ def test_validate_merge_block_fail_parent_hash_is_not_tbh(spec, state):
         block.body.signed_execution_payload_header.message.parent_block_hash = (
             pow_chain.head().block_hash
         )
-        block.body.signed_execution_payload_header.message.block_hash = compute_el_block_hash(
-            spec, payload, state
+        block.body.signed_execution_payload_header.message.block_hash = (
+            compute_el_block_hash(spec, payload, state)
         )
     else:
         block.body.execution_payload.parent_hash = pow_chain.head().block_hash
@@ -203,10 +215,14 @@ def test_validate_merge_block_fail_parent_hash_is_not_tbh(spec, state):
         "TERMINAL_BLOCK_HASH_ACTIVATION_EPOCH": "1",
     }
 )
-def test_validate_merge_block_terminal_block_hash_fail_activation_not_reached(spec, state):
+def test_validate_merge_block_terminal_block_hash_fail_activation_not_reached(
+    spec, state
+):
     pow_chain = prepare_random_pow_chain(spec, 2)
     # shouldn't fail if TTD check is reached
-    pow_chain.head(-1).total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    pow_chain.head(-1).total_difficulty = (
+        spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    )
     pow_chain.head().total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY
     pow_chain.head().block_hash = TERMINAL_BLOCK_HASH
     block = build_empty_block_for_next_slot(spec, state)
@@ -215,8 +231,8 @@ def test_validate_merge_block_terminal_block_hash_fail_activation_not_reached(sp
         block.body.signed_execution_payload_header.message.parent_block_hash = (
             pow_chain.head().block_hash
         )
-        block.body.signed_execution_payload_header.message.block_hash = compute_el_block_hash(
-            spec, payload, state
+        block.body.signed_execution_payload_header.message.block_hash = (
+            compute_el_block_hash(spec, payload, state)
         )
     else:
         block.body.execution_payload.parent_hash = pow_chain.head().block_hash
@@ -234,10 +250,14 @@ def test_validate_merge_block_terminal_block_hash_fail_activation_not_reached(sp
         "TERMINAL_BLOCK_HASH_ACTIVATION_EPOCH": "1",
     }
 )
-def test_validate_merge_block_fail_activation_not_reached_parent_hash_is_not_tbh(spec, state):
+def test_validate_merge_block_fail_activation_not_reached_parent_hash_is_not_tbh(
+    spec, state
+):
     pow_chain = prepare_random_pow_chain(spec, 2)
     # shouldn't fail if TTD check is reached
-    pow_chain.head(-1).total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    pow_chain.head(-1).total_difficulty = (
+        spec.config.TERMINAL_TOTAL_DIFFICULTY - uint256(1)
+    )
     pow_chain.head().total_difficulty = spec.config.TERMINAL_TOTAL_DIFFICULTY
     block = build_empty_block_for_next_slot(spec, state)
     if is_post_eip7732(spec):
@@ -245,8 +265,8 @@ def test_validate_merge_block_fail_activation_not_reached_parent_hash_is_not_tbh
         block.body.signed_execution_payload_header.message.parent_block_hash = (
             pow_chain.head().block_hash
         )
-        block.body.signed_execution_payload_header.message.block_hash = compute_el_block_hash(
-            spec, payload, state
+        block.body.signed_execution_payload_header.message.block_hash = (
+            compute_el_block_hash(spec, payload, state)
         )
     else:
         block.body.execution_payload.parent_hash = pow_chain.head().block_hash

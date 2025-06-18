@@ -33,7 +33,9 @@ def encode(value, include_hash_tree_roots=False):
             field_value = getattr(value, field_name)
             ret[field_name] = encode(field_value, include_hash_tree_roots)
             if include_hash_tree_roots:
-                ret[field_name + "_hash_tree_root"] = "0x" + hash_tree_root(field_value).hex()
+                ret[field_name + "_hash_tree_root"] = (
+                    "0x" + hash_tree_root(field_value).hex()
+                )
         if include_hash_tree_roots:
             ret["hash_tree_root"] = "0x" + hash_tree_root(value).hex()
         return ret
@@ -41,7 +43,9 @@ def encode(value, include_hash_tree_roots=False):
         inner_value = value.value()
         return {
             "selector": int(value.selector()),
-            "value": None if inner_value is None else encode(inner_value, include_hash_tree_roots),
+            "value": None
+            if inner_value is None
+            else encode(inner_value, include_hash_tree_roots),
         }
     else:
         raise Exception(f"Type not recognized: value={value}, typ={type(value)}")

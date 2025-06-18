@@ -22,7 +22,9 @@ from eth2spec.test.helpers.execution_payload import (
 
 
 def _run_blob_kzg_commitments_merkle_proof_test(spec, state, rng=None, blob_count=1):
-    opaque_tx, blobs, blob_kzg_commitments, _ = get_sample_blob_tx(spec, blob_count=blob_count)
+    opaque_tx, blobs, blob_kzg_commitments, _ = get_sample_blob_tx(
+        spec, blob_count=blob_count
+    )
     if rng is None:
         block = build_empty_block_for_next_slot(spec, state)
     else:
@@ -41,7 +43,9 @@ def _run_blob_kzg_commitments_merkle_proof_test(spec, state, rng=None, blob_coun
     )
     signed_block = sign_block(spec, state, block, proposer_index=0)
     cells_and_kzg_proofs = [spec.compute_cells_and_kzg_proofs(blob) for blob in blobs]
-    column_sidcars = spec.get_data_column_sidecars_from_block(signed_block, cells_and_kzg_proofs)
+    column_sidcars = spec.get_data_column_sidecars_from_block(
+        signed_block, cells_and_kzg_proofs
+    )
     column_sidcar = column_sidcars[0]
 
     yield "object", block.body
@@ -85,7 +89,9 @@ def test_blob_kzg_commitments_merkle_proof__random_block_1(spec, state):
 @with_fulu_and_later
 @spec_state_test
 def test_blob_kzg_commitments_merkle_proof__multiple_blobs(spec, state):
-    blob_count = spec.get_blob_parameters(spec.get_current_epoch(state)).max_blobs_per_block // 2
+    blob_count = (
+        spec.get_blob_parameters(spec.get_current_epoch(state)).max_blobs_per_block // 2
+    )
     rng = random.Random(2222)
     yield from _run_blob_kzg_commitments_merkle_proof_test(
         spec, state, rng=rng, blob_count=blob_count
@@ -96,7 +102,9 @@ def test_blob_kzg_commitments_merkle_proof__multiple_blobs(spec, state):
 @with_fulu_and_later
 @spec_state_test
 def test_blob_kzg_commitments_merkle_proof__max_blobs(spec, state):
-    max_blobs = spec.get_blob_parameters(spec.get_current_epoch(state)).max_blobs_per_block
+    max_blobs = spec.get_blob_parameters(
+        spec.get_current_epoch(state)
+    ).max_blobs_per_block
     rng = random.Random(3333)
     yield from _run_blob_kzg_commitments_merkle_proof_test(
         spec, state, rng=rng, blob_count=max_blobs

@@ -41,7 +41,9 @@ def compute_data_column_sidecar(spec, state):
     )
     signed_block = sign_block(spec, state, block, proposer_index=0)
     cells_and_kzg_proofs = [spec.compute_cells_and_kzg_proofs(blob) for blob in blobs]
-    return spec.get_data_column_sidecars_from_block(signed_block, cells_and_kzg_proofs)[0]
+    return spec.get_data_column_sidecars_from_block(signed_block, cells_and_kzg_proofs)[
+        0
+    ]
 
 
 # Tests for verify_data_column_sidecar
@@ -154,7 +156,9 @@ def test_verify_data_column_sidecar_inclusion_proof__valid(spec, state):
 @with_fulu_and_later
 @spec_state_test
 @single_phase
-def test_verify_data_column_sidecar_inclusion_proof__invalid_missing_commitment(spec, state):
+def test_verify_data_column_sidecar_inclusion_proof__invalid_missing_commitment(
+    spec, state
+):
     sidecar = compute_data_column_sidecar(spec, state)
     sidecar.kzg_commitments = sidecar.kzg_commitments[1:]
     assert not spec.verify_data_column_sidecar_inclusion_proof(sidecar)
@@ -163,7 +167,9 @@ def test_verify_data_column_sidecar_inclusion_proof__invalid_missing_commitment(
 @with_fulu_and_later
 @spec_state_test
 @single_phase
-def test_verify_data_column_sidecar_inclusion_proof__invalid_duplicate_commitment(spec, state):
+def test_verify_data_column_sidecar_inclusion_proof__invalid_duplicate_commitment(
+    spec, state
+):
     sidecar = compute_data_column_sidecar(spec, state)
     sidecar.kzg_commitments = sidecar.kzg_commitments + [sidecar.kzg_commitments[0]]
     assert not spec.verify_data_column_sidecar_inclusion_proof(sidecar)

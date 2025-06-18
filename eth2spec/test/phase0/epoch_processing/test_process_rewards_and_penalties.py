@@ -18,7 +18,9 @@ from eth2spec.test.helpers.attestations import (
     prepare_state_with_attestations,
     sign_attestation,
 )
-from eth2spec.test.helpers.attester_slashings import get_indexed_attestation_participants
+from eth2spec.test.helpers.attester_slashings import (
+    get_indexed_attestation_participants,
+)
 from eth2spec.test.helpers.epoch_processing import run_epoch_processing_with
 from eth2spec.test.helpers.forks import (
     is_post_altair,
@@ -42,7 +44,9 @@ def validate_resulting_balances(spec, pre_state, post_state, attestations):
         if not spec.is_active_validator(pre_state.validators[index], current_epoch):
             assert post_state.balances[index] == pre_state.balances[index]
         elif not is_post_altair(spec):
-            proposer_indices = [a.proposer_index for a in post_state.previous_epoch_attestations]
+            proposer_indices = [
+                a.proposer_index for a in post_state.previous_epoch_attestations
+            ]
             if spec.is_in_inactivity_leak(post_state):
                 # Proposers can still make money during a leak before LIGHTCLIENT_PATCH
                 if index in proposer_indices and index in attesting_indices:
@@ -157,7 +161,9 @@ def test_full_attestations_misc_balances(spec, state):
 
 @with_all_phases
 @spec_test
-@with_custom_state(balances_fn=low_single_balance, threshold_fn=zero_activation_threshold)
+@with_custom_state(
+    balances_fn=low_single_balance, threshold_fn=zero_activation_threshold
+)
 @single_phase
 def test_full_attestations_one_validator_one_gwei(spec, state):
     attestations = prepare_state_with_attestations(spec, state)
@@ -307,7 +313,9 @@ def test_duplicate_attestation(spec, state):
 
     inclusion_slot = state.slot + spec.MIN_ATTESTATION_INCLUSION_DELAY
     add_attestations_to_state(spec, single_state, [attestation], inclusion_slot)
-    add_attestations_to_state(spec, dup_state, [attestation, attestation], inclusion_slot)
+    add_attestations_to_state(
+        spec, dup_state, [attestation, attestation], inclusion_slot
+    )
 
     next_epoch(spec, single_state)
     next_epoch(spec, dup_state)
@@ -346,7 +354,9 @@ def test_duplicate_participants_different_attestation_1(spec, state):
     dup_state = state.copy()
 
     inclusion_slot = state.slot + spec.MIN_ATTESTATION_INCLUSION_DELAY
-    add_attestations_to_state(spec, single_correct_state, [correct_attestation], inclusion_slot)
+    add_attestations_to_state(
+        spec, single_correct_state, [correct_attestation], inclusion_slot
+    )
     add_attestations_to_state(
         spec, dup_state, [correct_attestation, incorrect_attestation], inclusion_slot
     )
@@ -388,7 +398,9 @@ def test_duplicate_participants_different_attestation_2(spec, state):
     dup_state = state.copy()
 
     inclusion_slot = state.slot + spec.MIN_ATTESTATION_INCLUSION_DELAY
-    add_attestations_to_state(spec, single_correct_state, [correct_attestation], inclusion_slot)
+    add_attestations_to_state(
+        spec, single_correct_state, [correct_attestation], inclusion_slot
+    )
     add_attestations_to_state(
         spec, dup_state, [incorrect_attestation, correct_attestation], inclusion_slot
     )
@@ -431,9 +443,13 @@ def test_duplicate_participants_different_attestation_3(spec, state):
     dup_state = state.copy()
 
     inclusion_slot = state.slot + spec.MIN_ATTESTATION_INCLUSION_DELAY
-    add_attestations_to_state(spec, single_correct_state, [correct_attestation], inclusion_slot)
+    add_attestations_to_state(
+        spec, single_correct_state, [correct_attestation], inclusion_slot
+    )
     add_attestations_to_state(spec, dup_state, [incorrect_attestation], inclusion_slot)
-    add_attestations_to_state(spec, dup_state, [correct_attestation], inclusion_slot + 1)
+    add_attestations_to_state(
+        spec, dup_state, [correct_attestation], inclusion_slot + 1
+    )
 
     next_epoch(spec, single_correct_state)
     next_epoch(spec, dup_state)

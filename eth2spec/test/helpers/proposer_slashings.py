@@ -1,5 +1,9 @@
 from eth2spec.test.helpers.block_header import sign_block_header
-from eth2spec.test.helpers.forks import is_post_altair, is_post_bellatrix, is_post_electra
+from eth2spec.test.helpers.forks import (
+    is_post_altair,
+    is_post_bellatrix,
+    is_post_electra,
+)
 from eth2spec.test.helpers.keys import pubkey_to_privkey
 from eth2spec.test.helpers.state import get_balance
 from eth2spec.test.helpers.sync_committee import (
@@ -45,7 +49,9 @@ def check_proposer_slashing_effect(spec, pre_state, state, slashed_index, block=
         sc_penalty_for_proposer
     ) = 0
     if is_post_altair(spec) and block is not None:
-        committee_indices = compute_committee_indices(state, state.current_sync_committee)
+        committee_indices = compute_committee_indices(
+            state, state.current_sync_committee
+        )
         committee_bits = block.body.sync_aggregate.sync_committee_bits
         sc_reward_for_slashed, sc_penalty_for_slashed = (
             compute_sync_committee_participant_reward_and_penalty(

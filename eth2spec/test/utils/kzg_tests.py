@@ -62,8 +62,17 @@ FE_VALID2 = field_element_bytes(1)
 FE_VALID3 = field_element_bytes(2)
 FE_VALID4 = field_element_bytes(pow(5, 1235, spec.BLS_MODULUS))
 FE_VALID5 = field_element_bytes(spec.BLS_MODULUS - 1)
-FE_VALID6 = field_element_bytes(int(spec.compute_roots_of_unity(spec.FIELD_ELEMENTS_PER_BLOB)[1]))
-VALID_FIELD_ELEMENTS = [FE_VALID1, FE_VALID2, FE_VALID3, FE_VALID4, FE_VALID5, FE_VALID6]
+FE_VALID6 = field_element_bytes(
+    int(spec.compute_roots_of_unity(spec.FIELD_ELEMENTS_PER_BLOB)[1])
+)
+VALID_FIELD_ELEMENTS = [
+    FE_VALID1,
+    FE_VALID2,
+    FE_VALID3,
+    FE_VALID4,
+    FE_VALID5,
+    FE_VALID6,
+]
 
 FE_INVALID_EQUAL_TO_MODULUS = field_element_bytes_unchecked(spec.BLS_MODULUS)
 FE_INVALID_MODULUS_PLUS_ONE = field_element_bytes_unchecked(spec.BLS_MODULUS + 1)
@@ -85,13 +94,19 @@ INVALID_FIELD_ELEMENTS = [
 BLOB_ALL_ZEROS = spec.Blob()
 BLOB_ALL_TWOS = spec.Blob(b"".join([field_element_bytes(2) for n in range(4096)]))
 BLOB_RANDOM_VALID1 = spec.Blob(
-    b"".join([field_element_bytes(pow(2, n + 256, spec.BLS_MODULUS)) for n in range(4096)])
+    b"".join(
+        [field_element_bytes(pow(2, n + 256, spec.BLS_MODULUS)) for n in range(4096)]
+    )
 )
 BLOB_RANDOM_VALID2 = spec.Blob(
-    b"".join([field_element_bytes(pow(3, n + 256, spec.BLS_MODULUS)) for n in range(4096)])
+    b"".join(
+        [field_element_bytes(pow(3, n + 256, spec.BLS_MODULUS)) for n in range(4096)]
+    )
 )
 BLOB_RANDOM_VALID3 = spec.Blob(
-    b"".join([field_element_bytes(pow(5, n + 256, spec.BLS_MODULUS)) for n in range(4096)])
+    b"".join(
+        [field_element_bytes(pow(5, n + 256, spec.BLS_MODULUS)) for n in range(4096)]
+    )
 )
 BLOB_ALL_MODULUS_MINUS_ONE = spec.Blob(
     b"".join([field_element_bytes(spec.BLS_MODULUS - 1) for n in range(4096)])
@@ -102,7 +117,12 @@ BLOB_ALMOST_ZERO = spec.Blob(
 
 BLOB_INVALID = spec.Blob(b"\xff" * 4096 * 32)
 BLOB_INVALID_CLOSE = spec.Blob(
-    b"".join([BLS_MODULUS_BYTES if n == 2111 else field_element_bytes(0) for n in range(4096)])
+    b"".join(
+        [
+            BLS_MODULUS_BYTES if n == 2111 else field_element_bytes(0)
+            for n in range(4096)
+        ]
+    )
 )
 BLOB_INVALID_LENGTH_PLUS_ONE = BLOB_RANDOM_VALID1 + b"\x00"
 BLOB_INVALID_LENGTH_MINUS_ONE = BLOB_RANDOM_VALID1[:-1]
@@ -165,18 +185,27 @@ CELL_RANDOM_VALID3 = b"".join(
 )
 
 CELL_ALL_MAX_VALUE = b"".join(
-    [field_element_bytes_unchecked(2**256 - 1) for n in range(spec.FIELD_ELEMENTS_PER_CELL)]
+    [
+        field_element_bytes_unchecked(2**256 - 1)
+        for n in range(spec.FIELD_ELEMENTS_PER_CELL)
+    ]
 )
 CELL_ONE_INVALID_FIELD = b"".join(
     [
-        field_element_bytes_unchecked(spec.BLS_MODULUS) if n == 7 else field_element_bytes(0)
+        field_element_bytes_unchecked(spec.BLS_MODULUS)
+        if n == 7
+        else field_element_bytes(0)
         for n in range(spec.FIELD_ELEMENTS_PER_CELL)
     ]
 )
 CELL_INVALID_TOO_FEW_BYTES = CELL_RANDOM_VALID1[:-1]
 CELL_INVALID_TOO_MANY_BYTES = CELL_RANDOM_VALID2 + b"\x00"
 
-VALID_INDIVIDUAL_RANDOM_CELL_BYTES = [CELL_RANDOM_VALID1, CELL_RANDOM_VALID2, CELL_RANDOM_VALID3]
+VALID_INDIVIDUAL_RANDOM_CELL_BYTES = [
+    CELL_RANDOM_VALID1,
+    CELL_RANDOM_VALID2,
+    CELL_RANDOM_VALID3,
+]
 INVALID_INDIVIDUAL_CELL_BYTES = [
     CELL_ALL_MAX_VALUE,
     CELL_ONE_INVALID_FIELD,

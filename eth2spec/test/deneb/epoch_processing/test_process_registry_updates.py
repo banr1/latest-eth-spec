@@ -23,7 +23,11 @@ def run_test_activation_churn_limit(spec, state):
 
     validator_count_0 = len(state.validators)
 
-    balance = spec.MIN_ACTIVATION_BALANCE if is_post_electra(spec) else spec.MAX_EFFECTIVE_BALANCE
+    balance = (
+        spec.MIN_ACTIVATION_BALANCE
+        if is_post_electra(spec)
+        else spec.MAX_EFFECTIVE_BALANCE
+    )
 
     for i in range(mock_activations):
         index = validator_count_0 + i
@@ -77,7 +81,10 @@ def test_activation_churn_limit__greater_than_activation_limit(spec, state):
         spec.get_validator_activation_churn_limit(state)
         == spec.config.MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT
     )
-    assert spec.get_validator_churn_limit(state) > spec.config.MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT
+    assert (
+        spec.get_validator_churn_limit(state)
+        > spec.config.MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT
+    )
     yield from run_test_activation_churn_limit(spec, state)
 
 
@@ -97,7 +104,10 @@ def test_activation_churn_limit__equal_to_activation_limit(spec, state):
         spec.get_validator_activation_churn_limit(state)
         == spec.config.MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT
     )
-    assert spec.get_validator_churn_limit(state) == spec.config.MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT
+    assert (
+        spec.get_validator_churn_limit(state)
+        == spec.config.MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT
+    )
     yield from run_test_activation_churn_limit(spec, state)
 
 
@@ -112,5 +122,8 @@ def test_activation_churn_limit__less_than_activation_limit(spec, state):
         spec.get_validator_activation_churn_limit(state)
         < spec.config.MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT
     )
-    assert spec.get_validator_churn_limit(state) < spec.config.MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT
+    assert (
+        spec.get_validator_churn_limit(state)
+        < spec.config.MAX_PER_EPOCH_ACTIVATION_CHURN_LIMIT
+    )
     yield from run_test_activation_churn_limit(spec, state)

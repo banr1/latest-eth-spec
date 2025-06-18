@@ -46,10 +46,13 @@ def test_lookahead_consistency_at_fork(spec, phases, state):
 @spec_test
 @with_state
 @with_meta_tags(FULU_FORK_TEST_META_TAGS)
-def test_lookahead_consistency_with_effective_balance_change_at_fork(spec, phases, state):
+def test_lookahead_consistency_with_effective_balance_change_at_fork(
+    spec, phases, state
+):
     # Move to the last slot of the current epoch
     spec.process_slots(
-        state, state.slot + spec.SLOTS_PER_EPOCH - (state.slot % spec.SLOTS_PER_EPOCH) - 1
+        state,
+        state.slot + spec.SLOTS_PER_EPOCH - (state.slot % spec.SLOTS_PER_EPOCH) - 1,
     )
     assert state.slot % spec.SLOTS_PER_EPOCH == spec.SLOTS_PER_EPOCH - 1
 

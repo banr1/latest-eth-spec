@@ -4,7 +4,11 @@ from remerkleable.basic import uint64
 from remerkleable.byte_arrays import Bytes32
 
 from eth2spec.test.context import expect_assertion_error
-from eth2spec.test.helpers.block import apply_empty_block, sign_block, transition_unsigned_block
+from eth2spec.test.helpers.block import (
+    apply_empty_block,
+    sign_block,
+    transition_unsigned_block,
+)
 from eth2spec.test.helpers.forks import is_post_altair, is_post_eip7732
 from eth2spec.test.helpers.voluntary_exits import get_unslashed_exited_validators
 from eth2spec.utils.hash_function import hash
@@ -71,7 +75,9 @@ def next_epoch_via_block(spec, state, insert_state_root=False):
     Transition to the start slot of the next epoch via a full block transition
     """
     block = apply_empty_block(
-        spec, state, state.slot + spec.SLOTS_PER_EPOCH - state.slot % spec.SLOTS_PER_EPOCH
+        spec,
+        state,
+        state.slot + spec.SLOTS_PER_EPOCH - state.slot % spec.SLOTS_PER_EPOCH,
     )
     if insert_state_root:
         block.state_root = state.hash_tree_root()
@@ -98,7 +104,9 @@ def payload_state_transition_no_store(spec, state, block):
         if state.latest_block_header.state_root == spec.Root():
             state.latest_block_header.state_root = previous_state_root
         # also perform the state transition as if the payload was revealed
-        state.latest_block_hash = block.body.signed_execution_payload_header.message.block_hash
+        state.latest_block_hash = (
+            block.body.signed_execution_payload_header.message.block_hash
+        )
         state.latest_full_slot = block.slot
     return state
 
@@ -178,7 +186,9 @@ def ensure_state_has_validators_across_lifecycle(spec, state):
     has_pending = any(filter(spec.is_eligible_for_activation_queue, state.validators))
 
     current_epoch = spec.get_current_epoch(state)
-    has_active = any(filter(lambda v: spec.is_active_validator(v, current_epoch), state.validators))
+    has_active = any(
+        filter(lambda v: spec.is_active_validator(v, current_epoch), state.validators)
+    )
 
     has_exited = any(get_unslashed_exited_validators(spec, state))
 
@@ -202,7 +212,12 @@ def has_active_balance_differential(spec, state):
 
 def get_validator_index_by_pubkey(state, pubkey):
     index = next(
-        (i for i, validator in enumerate(state.validators) if validator.pubkey == pubkey), None
+        (
+            i
+            for i, validator in enumerate(state.validators)
+            if validator.pubkey == pubkey
+        ),
+        None,
     )
     return index
 
@@ -233,10 +248,16 @@ def cause_effective_balance_decrease_below_threshold(
     Cause an effective balance decrease change for the validator at
     `validator_index` below a threshold
     """
-    HYSTERESIS_INCREMENT = uint64(spec.EFFECTIVE_BALANCE_INCREMENT // spec.HYSTERESIS_QUOTIENT)
+    HYSTERESIS_INCREMENT = uint64(
+        spec.EFFECTIVE_BALANCE_INCREMENT // spec.HYSTERESIS_QUOTIENT
+    )
     DOWNWARD_THRESHOLD = HYSTERESIS_INCREMENT * spec.HYSTERESIS_DOWNWARD_MULTIPLIER
     state.balances[validator_index] = (
-        min(threshold, state.validators[validator_index].effective_balance - DOWNWARD_THRESHOLD) - 1
+        min(
+            threshold,
+            state.validators[validator_index].effective_balance - DOWNWARD_THRESHOLD,
+        )
+        - 1
     )
 
 
@@ -261,7 +282,8 @@ def get_beacon_proposer_index_and_threshold(spec, state) -> tuple[uint64, uint64
     """
     epoch = spec.get_current_epoch(state)
     seed = hash(
-        spec.get_seed(state, epoch, spec.DOMAIN_BEACON_PROPOSER) + uint_to_bytes(state.slot)
+        spec.get_seed(state, epoch, spec.DOMAIN_BEACON_PROPOSER)
+        + uint_to_bytes(state.slot)
     )
     indices = spec.get_active_validator_indices(state, epoch)
     return electra_compute_proposer_index_and_threshold(spec, state, indices, seed)

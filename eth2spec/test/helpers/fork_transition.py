@@ -74,14 +74,18 @@ def _set_operations_by_dict(spec, block, operation_dict, state):
         setattr(obj, key.split(".")[-1], value)
     if is_post_eip7732(spec):
         payload = build_empty_execution_payload(spec, state)
-        block.body.signed_execution_payload_header.message.block_hash = compute_el_block_hash(
-            spec, payload, state
+        block.body.signed_execution_payload_header.message.block_hash = (
+            compute_el_block_hash(spec, payload, state)
         )
     elif is_post_bellatrix(spec):
-        block.body.execution_payload.block_hash = compute_el_block_hash_for_block(spec, block)
+        block.body.execution_payload.block_hash = compute_el_block_hash_for_block(
+            spec, block
+        )
 
 
-def _state_transition_and_sign_block_at_slot(spec, state, sync_aggregate=None, operation_dict=None):
+def _state_transition_and_sign_block_at_slot(
+    spec, state, sync_aggregate=None, operation_dict=None
+):
     """
     Cribbed from ``transition_unsigned_block`` helper
     where the early parts of the state transition have already
@@ -192,7 +196,13 @@ def get_upgrade_fn(spec, fork):
 
 
 def do_fork(
-    state, spec, post_spec, fork_epoch, with_block=True, sync_aggregate=None, operation_dict=None
+    state,
+    spec,
+    post_spec,
+    fork_epoch,
+    with_block=True,
+    sync_aggregate=None,
+    operation_dict=None,
 ):
     spec.process_slots(state, state.slot + 1)
 
@@ -207,8 +217,12 @@ def do_fork(
     if previous_fork == PHASE0:
         previous_version = spec.config.GENESIS_FORK_VERSION
     else:
-        previous_version = getattr(post_spec.config, f"{previous_fork.upper()}_FORK_VERSION")
-    current_version = getattr(post_spec.config, f"{post_spec.fork.upper()}_FORK_VERSION")
+        previous_version = getattr(
+            post_spec.config, f"{previous_fork.upper()}_FORK_VERSION"
+        )
+    current_version = getattr(
+        post_spec.config, f"{post_spec.fork.upper()}_FORK_VERSION"
+    )
 
     assert state.fork.previous_version == previous_version
     assert state.fork.current_version == current_version
@@ -225,7 +239,13 @@ def do_fork(
 
 
 def do_fork_generate(
-    state, spec, post_spec, fork_epoch, with_block=True, sync_aggregate=None, operation_dict=None
+    state,
+    spec,
+    post_spec,
+    fork_epoch,
+    with_block=True,
+    sync_aggregate=None,
+    operation_dict=None,
 ):
     spec.process_slots(state, state.slot + 1)
 
@@ -244,8 +264,12 @@ def do_fork_generate(
     if previous_fork == PHASE0:
         previous_version = spec.config.GENESIS_FORK_VERSION
     else:
-        previous_version = getattr(post_spec.config, f"{previous_fork.upper()}_FORK_VERSION")
-    current_version = getattr(post_spec.config, f"{post_spec.fork.upper()}_FORK_VERSION")
+        previous_version = getattr(
+            post_spec.config, f"{previous_fork.upper()}_FORK_VERSION"
+        )
+    current_version = getattr(
+        post_spec.config, f"{post_spec.fork.upper()}_FORK_VERSION"
+    )
 
     assert state.fork.previous_version == previous_version
     assert state.fork.current_version == current_version
@@ -331,7 +355,14 @@ def transition_to_next_epoch_and_append_blocks(
 
 
 def run_transition_with_operation(
-    state, fork_epoch, spec, post_spec, pre_tag, post_tag, operation_type, operation_at_slot
+    state,
+    fork_epoch,
+    spec,
+    post_spec,
+    pre_tag,
+    post_tag,
+    operation_type,
+    operation_at_slot,
 ):
     """
     Generate `operation_type` operation with the spec before fork.
@@ -360,7 +391,11 @@ def run_transition_with_operation(
         selected_validator_index = (proposer_index + 1) % len(state.validators)
         if operation_type == OperationType.PROPOSER_SLASHING:
             proposer_slashing = get_valid_proposer_slashing(
-                spec, state, slashed_index=selected_validator_index, signed_1=True, signed_2=True
+                spec,
+                state,
+                slashed_index=selected_validator_index,
+                signed_1=True,
+                signed_2=True,
             )
             operation_dict = {"proposer_slashings": [proposer_slashing]}
         else:
@@ -412,7 +447,10 @@ def run_transition_with_operation(
     elif operation_type == OperationType.WITHDRAWAL_REQUEST:
         selected_validator_index = 0
         withdrawal_request = prepare_withdrawal_request(
-            post_spec, state, selected_validator_index, amount=post_spec.FULL_EXIT_REQUEST_AMOUNT
+            post_spec,
+            state,
+            selected_validator_index,
+            amount=post_spec.FULL_EXIT_REQUEST_AMOUNT,
         )
         operation_dict = {"execution_requests.withdrawals": [withdrawal_request]}
     elif operation_type == OperationType.CONSOLIDATION_REQUEST:
@@ -429,23 +467,27 @@ def run_transition_with_operation(
             ]
             assert slashed_proposer.slashed
         elif operation_type == OperationType.ATTESTER_SLASHING:
-            indices = set(attester_slashing.attestation_1.attesting_indices).intersection(
-                attester_slashing.attestation_2.attesting_indices
-            )
+            indices = set(
+                attester_slashing.attestation_1.attesting_indices
+            ).intersection(attester_slashing.attestation_2.attesting_indices)
             assert selected_validator_index in indices
             assert len(indices) > 0
             for validator_index in indices:
                 assert state.validators[validator_index].slashed
         elif operation_type == OperationType.DEPOSIT:
             assert not post_spec.is_active_validator(
-                state.validators[selected_validator_index], post_spec.get_current_epoch(state)
+                state.validators[selected_validator_index],
+                post_spec.get_current_epoch(state),
             )
         elif operation_type == OperationType.VOLUNTARY_EXIT:
             validator = state.validators[selected_validator_index]
             assert validator.exit_epoch < post_spec.FAR_FUTURE_EPOCH
         elif operation_type == OperationType.BLS_TO_EXECUTION_CHANGE:
             validator = state.validators[selected_validator_index]
-            assert validator.withdrawal_credentials[:1] == spec.ETH1_ADDRESS_WITHDRAWAL_PREFIX
+            assert (
+                validator.withdrawal_credentials[:1]
+                == spec.ETH1_ADDRESS_WITHDRAWAL_PREFIX
+            )
         elif operation_type == OperationType.DEPOSIT_REQUEST:
             assert state.pending_deposits == [
                 post_spec.PendingDeposit(
@@ -461,7 +503,10 @@ def run_transition_with_operation(
             assert validator.exit_epoch < post_spec.FAR_FUTURE_EPOCH
         elif operation_type == OperationType.CONSOLIDATION_REQUEST:
             validator = state.validators[selected_validator_index]
-            assert validator.withdrawal_credentials[:1] == post_spec.COMPOUNDING_WITHDRAWAL_PREFIX
+            assert (
+                validator.withdrawal_credentials[:1]
+                == post_spec.COMPOUNDING_WITHDRAWAL_PREFIX
+            )
 
     yield "pre", state
 
@@ -478,7 +523,9 @@ def run_transition_with_operation(
 
     # irregular state transition to handle fork:
     _operation_at_slot = operation_dict if is_at_fork else None
-    state, block = do_fork(state, spec, post_spec, fork_epoch, operation_dict=_operation_at_slot)
+    state, block = do_fork(
+        state, spec, post_spec, fork_epoch, operation_dict=_operation_at_slot
+    )
     blocks.append(post_tag(block))
 
     if is_at_fork:
@@ -491,7 +538,9 @@ def run_transition_with_operation(
         )
     else:
         # avoid using the slashed validators as block proposers
-        ignoring_proposers = [selected_validator_index] if is_slashing_operation else None
+        ignoring_proposers = (
+            [selected_validator_index] if is_slashing_operation else None
+        )
 
         # continue regular state transition with new spec into next epoch
         transition_to_next_epoch_and_append_blocks(
@@ -534,9 +583,13 @@ def _transition_until_active(post_spec, state, post_tag, blocks, validator_index
         post_spec, state, post_tag, blocks, only_last_block=True
     )
 
-    assert state.validators[validator_index].activation_epoch < post_spec.FAR_FUTURE_EPOCH
+    assert (
+        state.validators[validator_index].activation_epoch < post_spec.FAR_FUTURE_EPOCH
+    )
 
-    to_slot = state.validators[validator_index].activation_epoch * post_spec.SLOTS_PER_EPOCH
+    to_slot = (
+        state.validators[validator_index].activation_epoch * post_spec.SLOTS_PER_EPOCH
+    )
     blocks.extend(
         [
             post_tag(block)

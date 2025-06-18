@@ -10,7 +10,9 @@ from eth2spec.test.helpers.voluntary_exits import get_unslashed_exited_validator
 
 
 def run_process_just_and_fin(spec, state):
-    yield from run_epoch_processing_with(spec, state, "process_justification_and_finalization")
+    yield from run_epoch_processing_with(
+        spec, state, "process_justification_and_finalization"
+    )
 
 
 def add_mock_attestations(
@@ -119,7 +121,9 @@ def put_checkpoints_in_block_roots(spec, state, checkpoints):
 
 def finalize_on_234(spec, state, epoch, sufficient_support):
     assert epoch > 4
-    transition_to(spec, state, spec.SLOTS_PER_EPOCH * epoch - 1)  # skip ahead to just before epoch
+    transition_to(
+        spec, state, spec.SLOTS_PER_EPOCH * epoch - 1
+    )  # skip ahead to just before epoch
 
     # 43210 -- epochs ago
     # 3210x -- justification bitfield indices
@@ -138,7 +142,12 @@ def finalize_on_234(spec, state, epoch, sufficient_support):
     ]  # mock 3rd and 4th latest epochs as justified (indices are pre-shift)
     # mock the 2nd latest epoch as justifiable, with 4th as source
     add_mock_attestations(
-        spec, state, epoch=epoch - 2, source=c4, target=c2, sufficient_support=sufficient_support
+        spec,
+        state,
+        epoch=epoch - 2,
+        source=c4,
+        target=c2,
+        sufficient_support=sufficient_support,
     )
 
     # process!
@@ -147,7 +156,9 @@ def finalize_on_234(spec, state, epoch, sufficient_support):
     assert state.previous_justified_checkpoint == c3  # changed to old current
     if sufficient_support:
         assert state.current_justified_checkpoint == c2  # changed to 2nd latest
-        assert state.finalized_checkpoint == c4  # finalized old previous justified epoch
+        assert (
+            state.finalized_checkpoint == c4
+        )  # finalized old previous justified epoch
     else:
         assert state.current_justified_checkpoint == c3  # still old current
         assert state.finalized_checkpoint == old_finalized  # no new finalized
@@ -155,7 +166,9 @@ def finalize_on_234(spec, state, epoch, sufficient_support):
 
 def finalize_on_23(spec, state, epoch, sufficient_support):
     assert epoch > 3
-    transition_to(spec, state, spec.SLOTS_PER_EPOCH * epoch - 1)  # skip ahead to just before epoch
+    transition_to(
+        spec, state, spec.SLOTS_PER_EPOCH * epoch - 1
+    )  # skip ahead to just before epoch
 
     # 43210 -- epochs ago
     # 210xx  -- justification bitfield indices (pre shift)
@@ -169,10 +182,17 @@ def finalize_on_23(spec, state, epoch, sufficient_support):
     state.previous_justified_checkpoint = c3
     state.current_justified_checkpoint = c3
     state.justification_bits = spec.Bitvector[spec.JUSTIFICATION_BITS_LENGTH]()
-    state.justification_bits[1] = 1  # mock 3rd latest epoch as justified (index is pre-shift)
+    state.justification_bits[1] = (
+        1  # mock 3rd latest epoch as justified (index is pre-shift)
+    )
     # mock the 2nd latest epoch as justifiable, with 3rd as source
     add_mock_attestations(
-        spec, state, epoch=epoch - 2, source=c3, target=c2, sufficient_support=sufficient_support
+        spec,
+        state,
+        epoch=epoch - 2,
+        source=c3,
+        target=c2,
+        sufficient_support=sufficient_support,
     )
 
     # process!
@@ -181,7 +201,9 @@ def finalize_on_23(spec, state, epoch, sufficient_support):
     assert state.previous_justified_checkpoint == c3  # changed to old current
     if sufficient_support:
         assert state.current_justified_checkpoint == c2  # changed to 2nd latest
-        assert state.finalized_checkpoint == c3  # finalized old previous justified epoch
+        assert (
+            state.finalized_checkpoint == c3
+        )  # finalized old previous justified epoch
     else:
         assert state.current_justified_checkpoint == c3  # still old current
         assert state.finalized_checkpoint == old_finalized  # no new finalized
@@ -203,14 +225,26 @@ def finalize_on_123(spec, state, epoch, sufficient_support):
     state.previous_justified_checkpoint = c5
     state.current_justified_checkpoint = c3
     state.justification_bits = spec.Bitvector[spec.JUSTIFICATION_BITS_LENGTH]()
-    state.justification_bits[1] = 1  # mock 3rd latest epochs as justified (index is pre-shift)
+    state.justification_bits[1] = (
+        1  # mock 3rd latest epochs as justified (index is pre-shift)
+    )
     # mock the 2nd latest epoch as justifiable, with 5th as source
     add_mock_attestations(
-        spec, state, epoch=epoch - 2, source=c5, target=c2, sufficient_support=sufficient_support
+        spec,
+        state,
+        epoch=epoch - 2,
+        source=c5,
+        target=c2,
+        sufficient_support=sufficient_support,
     )
     # mock the 1st latest epoch as justifiable, with 3rd as source
     add_mock_attestations(
-        spec, state, epoch=epoch - 1, source=c3, target=c1, sufficient_support=sufficient_support
+        spec,
+        state,
+        epoch=epoch - 1,
+        source=c3,
+        target=c1,
+        sufficient_support=sufficient_support,
     )
 
     # process!
@@ -227,7 +261,9 @@ def finalize_on_123(spec, state, epoch, sufficient_support):
 
 def finalize_on_12(spec, state, epoch, sufficient_support, messed_up_target):
     assert epoch > 2
-    transition_to(spec, state, spec.SLOTS_PER_EPOCH * epoch - 1)  # skip ahead to just before epoch
+    transition_to(
+        spec, state, spec.SLOTS_PER_EPOCH * epoch - 1
+    )  # skip ahead to just before epoch
 
     # 43210 -- epochs ago
     # 210xx  -- justification bitfield indices (pre shift)
@@ -241,7 +277,9 @@ def finalize_on_12(spec, state, epoch, sufficient_support, messed_up_target):
     state.previous_justified_checkpoint = c2
     state.current_justified_checkpoint = c2
     state.justification_bits = spec.Bitvector[spec.JUSTIFICATION_BITS_LENGTH]()
-    state.justification_bits[0] = 1  # mock 2nd latest epoch as justified (this is pre-shift)
+    state.justification_bits[0] = (
+        1  # mock 2nd latest epoch as justified (this is pre-shift)
+    )
     # mock the 1st latest epoch as justifiable, with 2nd as source
     add_mock_attestations(
         spec,

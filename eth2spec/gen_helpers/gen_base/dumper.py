@@ -69,7 +69,9 @@ class Dumper:
         with path.open("wb") as f:
             f.write(compress(data))
 
-    def _dump_yaml(self, test_case: TestCase, name: str, data: any, yaml_encoder: YAML) -> None:
+    def _dump_yaml(
+        self, test_case: TestCase, name: str, data: any, yaml_encoder: YAML
+    ) -> None:
         """Helper to write YAML files for test case."""
         path = test_case.dir / f"{name}.yaml"
         path.parent.mkdir(parents=True, exist_ok=True)

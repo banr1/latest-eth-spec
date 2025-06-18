@@ -61,7 +61,9 @@ def run_block_with_blobs(
     if valid:
         signed_block = state_transition_and_sign_block(spec, state, block)
     else:
-        signed_block = state_transition_and_sign_block(spec, state, block, expect_fail=True)
+        signed_block = state_transition_and_sign_block(
+            spec, state, block, expect_fail=True
+        )
 
     yield "blocks", [signed_block]
     yield "post", state if valid else None
@@ -97,14 +99,20 @@ def test_one_blob_max_txs(spec, state):
 @spec_state_test
 def test_invalid_one_blob_max_plus_one_txs(spec, state):
     yield from run_block_with_blobs(
-        spec, state, blob_count=1, tx_count=get_max_blob_count(spec, state) + 1, valid=False
+        spec,
+        state,
+        blob_count=1,
+        tx_count=get_max_blob_count(spec, state) + 1,
+        valid=False,
     )
 
 
 @with_all_phases_from_except(DENEB, [EIP7732])
 @spec_state_test
 def test_max_blobs_per_block(spec, state):
-    yield from run_block_with_blobs(spec, state, blob_count=get_max_blob_count(spec, state))
+    yield from run_block_with_blobs(
+        spec, state, blob_count=get_max_blob_count(spec, state)
+    )
 
 
 @with_all_phases_from_except(DENEB, [EIP7732])
@@ -126,4 +134,6 @@ def test_invalid_exceed_max_blobs_per_block(spec, state):
 @with_all_phases_from_except(DENEB, [EIP7732])
 @spec_state_test
 def test_mix_blob_tx_and_non_blob_tx(spec, state):
-    yield from run_block_with_blobs(spec, state, blob_count=1, tx_count=1, non_blob_tx_count=1)
+    yield from run_block_with_blobs(
+        spec, state, blob_count=1, tx_count=1, non_blob_tx_count=1
+    )

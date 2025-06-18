@@ -30,7 +30,9 @@ from eth2spec.test.helpers.light_client_data_collection import (
 @with_matching_spec_config(emitted_fork=ELECTRA)
 @with_presets([MINIMAL], reason="too slow")
 def test_deneb_electra_reorg_aligned(spec, phases, state):
-    yield from run_lc_data_collection_test_multi_fork(spec, phases, state, DENEB, ELECTRA)
+    yield from run_lc_data_collection_test_multi_fork(
+        spec, phases, state, DENEB, ELECTRA
+    )
 
 
 @with_phases(phases=[CAPELLA], other_phases=[DENEB, ELECTRA])
@@ -46,4 +48,6 @@ def test_deneb_electra_reorg_aligned(spec, phases, state):
 @with_matching_spec_config(emitted_fork=ELECTRA)
 @with_presets([MINIMAL], reason="too slow")
 def test_deneb_electra_reorg_unaligned(spec, phases, state):
-    yield from run_lc_data_collection_test_multi_fork(spec, phases, state, DENEB, ELECTRA)
+    yield from run_lc_data_collection_test_multi_fork(
+        spec, phases, state, DENEB, ELECTRA
+    )

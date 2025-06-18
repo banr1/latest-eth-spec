@@ -42,7 +42,9 @@ def test_proposer_lookahead_does_not_contain_exited_validators(spec, state):
         next_epoch(spec, state)
 
     # Exit first half of active validators
-    active_validators = spec.get_active_validator_indices(state, spec.get_current_epoch(state))
+    active_validators = spec.get_active_validator_indices(
+        state, spec.get_current_epoch(state)
+    )
     validators_to_exit = active_validators[: len(active_validators) // 2]
 
     # Initiate validator exits

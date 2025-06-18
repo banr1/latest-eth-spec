@@ -1,4 +1,8 @@
-from eth2spec.test.context import expect_assertion_error, spec_state_test, with_eip7441_and_later
+from eth2spec.test.context import (
+    expect_assertion_error,
+    spec_state_test,
+    with_eip7441_and_later,
+)
 from eth2spec.test.helpers.eip7441 import (
     compute_whisk_k_commitment,
     compute_whisk_tracker,
@@ -54,7 +58,9 @@ def test_wrong_tracker_r(spec, state):
     block = empty_block(spec)
     set_opening_proof(spec, state, block, PROPOSER_INDEX, K_OK, R_OK)
     wrong_tracker = compute_whisk_tracker(K_OK, R_WRONG)
-    state.whisk_proposer_trackers[state.slot % spec.PROPOSER_TRACKERS_COUNT] = wrong_tracker
+    state.whisk_proposer_trackers[state.slot % spec.PROPOSER_TRACKERS_COUNT] = (
+        wrong_tracker
+    )
     run_process_whisk_opening_proof(spec, state, block, valid=False)
 
 

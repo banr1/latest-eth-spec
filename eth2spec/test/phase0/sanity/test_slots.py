@@ -5,7 +5,12 @@ from eth2spec.test.context import (
 from eth2spec.test.helpers.forks import (
     is_post_capella,
 )
-from eth2spec.test.helpers.state import get_state_root, next_epoch, next_slot, transition_to
+from eth2spec.test.helpers.state import (
+    get_state_root,
+    next_epoch,
+    next_slot,
+    transition_to,
+)
 
 
 @with_all_phases
@@ -105,7 +110,9 @@ def test_balance_change_affects_proposer(spec, state):
 
         # Reduce the validator's balance, making it less likely to propose
         # The validator's effective balance will be updated during epoch processing
-        spec.decrease_balance(state, proposer_next_epoch, 10 * spec.EFFECTIVE_BALANCE_INCREMENT)
+        spec.decrease_balance(
+            state, proposer_next_epoch, 10 * spec.EFFECTIVE_BALANCE_INCREMENT
+        )
 
         # Check if the proposer changed as a result of the balance change
         tmp_state = state.copy()

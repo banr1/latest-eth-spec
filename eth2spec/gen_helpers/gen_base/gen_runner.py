@@ -106,7 +106,9 @@ def run_generator(input_test_cases: Iterable[TestCase], args=None):
         if len(args.forks) != 0 and test_case.fork_name not in args.forks:
             debug_print(f"Filtered: {test_case.get_identifier()}")
             continue
-        if len(args.cases) != 0 and not any(s in test_case.case_name for s in args.cases):
+        if len(args.cases) != 0 and not any(
+            s in test_case.case_name for s in args.cases
+        ):
             debug_print(f"Filtered: {test_case.get_identifier()}")
             continue
 
@@ -145,7 +147,9 @@ def run_generator(input_test_cases: Iterable[TestCase], args=None):
                 if remaining == 0:
                     # Show a final status when the queue is empty
                     # This is better than showing an empty table
-                    text = Text.from_markup(f"Completed {tests_prefix} in {time_since(start_time)}")
+                    text = Text.from_markup(
+                        f"Completed {tests_prefix} in {time_since(start_time)}"
+                    )
                     live.update(text)
                     break
 

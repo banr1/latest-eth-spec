@@ -191,6 +191,8 @@ def test_compute_fork_digest(spec):
         # Override function to return fork version in test case
         spec.compute_fork_version = lambda _: case["fork_version"]
         # Compute the fork digest given the inputs from the test case
-        fork_digest = spec.compute_fork_digest(case["genesis_validators_root"], case["epoch"])
+        fork_digest = spec.compute_fork_digest(
+            case["genesis_validators_root"], case["epoch"]
+        )
         # Check that the computed fork digest matches our expected value
         assert f"0x{fork_digest.hex()}" == case["expected_fork_digest"]

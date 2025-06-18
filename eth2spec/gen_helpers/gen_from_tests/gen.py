@@ -37,7 +37,9 @@ def generate_from_tests(
            Set to the pre-fork (w.r.t. fork_name) in multi-fork tests.
     :return: an iterable of test cases.
     """
-    fn_names = [name for (name, _) in getmembers(src, isfunction) if name.startswith("test_")]
+    fn_names = [
+        name for (name, _) in getmembers(src, isfunction) if name.startswith("test_")
+    ]
 
     if phase is None:
         phase = fork_name
@@ -59,7 +61,11 @@ def generate_from_tests(
             case_name=case_name,
             # TODO: with_all_phases and other per-phase tooling, should be replaced with per-fork equivalent.
             case_fn=generate_case_fn(
-                tfn, generator_mode=True, phase=phase, preset=preset_name, bls_active=bls_active
+                tfn,
+                generator_mode=True,
+                phase=phase,
+                preset=preset_name,
+                bls_active=bls_active,
             ),
         )
 

@@ -19,7 +19,12 @@ from eth2spec.test.helpers.keys import privkeys
 
 
 def run_execution_payload_processing(
-    spec, state, execution_payload, blob_kzg_commitments, valid=True, execution_valid=True
+    spec,
+    state,
+    execution_payload,
+    blob_kzg_commitments,
+    valid=True,
+    execution_valid=True,
 ):
     """
     Run ``process_execution_payload``, yielding:
@@ -40,7 +45,9 @@ def run_execution_payload_processing(
         kzg_list = spec.List[spec.KZGCommitment, spec.MAX_BLOB_COMMITMENTS_PER_BLOCK](
             blob_kzg_commitments
         )
-        state.latest_execution_payload_header.blob_kzg_commitments_root = kzg_list.hash_tree_root()
+        state.latest_execution_payload_header.blob_kzg_commitments_root = (
+            kzg_list.hash_tree_root()
+        )
         post_state = state.copy()
         previous_state_root = state.hash_tree_root()
         if post_state.latest_block_header.state_root == spec.Root():
@@ -83,7 +90,9 @@ def run_execution_payload_processing(
     if not valid:
         if is_post_eip7732(spec):
             expect_assertion_error(
-                lambda: spec.process_execution_payload(state, signed_envelope, TestEngine())
+                lambda: spec.process_execution_payload(
+                    state, signed_envelope, TestEngine()
+                )
             )
         else:
             expect_assertion_error(
@@ -280,7 +289,9 @@ def test_no_commitments_for_transactions(spec, state):
     """
     execution_payload = build_empty_execution_payload(spec, state)
 
-    opaque_tx, _, blob_kzg_commitments, _ = get_sample_blob_tx(spec, blob_count=2, rng=Random(1111))
+    opaque_tx, _, blob_kzg_commitments, _ = get_sample_blob_tx(
+        spec, blob_count=2, rng=Random(1111)
+    )
     blob_kzg_commitments = []  # incorrect count
 
     execution_payload.transactions = [opaque_tx]
@@ -302,8 +313,13 @@ def test_incorrect_commitments_order(spec, state):
     """
     execution_payload = build_empty_execution_payload(spec, state)
 
-    opaque_tx, _, blob_kzg_commitments, _ = get_sample_blob_tx(spec, blob_count=2, rng=Random(1111))
-    blob_kzg_commitments = [blob_kzg_commitments[1], blob_kzg_commitments[0]]  # incorrect order
+    opaque_tx, _, blob_kzg_commitments, _ = get_sample_blob_tx(
+        spec, blob_count=2, rng=Random(1111)
+    )
+    blob_kzg_commitments = [
+        blob_kzg_commitments[1],
+        blob_kzg_commitments[0],
+    ]  # incorrect order
 
     execution_payload.transactions = [opaque_tx]
     execution_payload.block_hash = compute_el_block_hash(spec, execution_payload, state)
@@ -327,7 +343,9 @@ def test_incorrect_transaction_no_blobs_but_with_commitments(spec, state):
     # the blob transaction is invalid, because the EL verifies that the tx contains at least one blob
     # therefore the EL should reject it, but the CL should not reject the block regardless
     opaque_tx, _, _, _ = get_sample_blob_tx(spec, blob_count=0, rng=Random(1111))
-    _, _, blob_kzg_commitments, _ = get_sample_blob_tx(spec, blob_count=2, rng=Random(1112))
+    _, _, blob_kzg_commitments, _ = get_sample_blob_tx(
+        spec, blob_count=2, rng=Random(1112)
+    )
 
     execution_payload.transactions = [opaque_tx]
     execution_payload.block_hash = compute_el_block_hash(spec, execution_payload, state)
@@ -401,7 +419,12 @@ def test_invalid_correct_input__execution_invalid(spec, state):
     if is_post_eip7732(spec):
         state.latest_execution_payload_header.block_hash = execution_payload.block_hash
     yield from run_execution_payload_processing(
-        spec, state, execution_payload, blob_kzg_commitments, valid=False, execution_valid=False
+        spec,
+        state,
+        execution_payload,
+        blob_kzg_commitments,
+        valid=False,
+        execution_valid=False,
     )
 
 

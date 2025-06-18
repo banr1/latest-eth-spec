@@ -1,6 +1,10 @@
 from curdleproofs import GenerateWhiskShuffleProof
 
-from eth2spec.test.context import expect_assertion_error, spec_state_test, with_eip7441_and_later
+from eth2spec.test.context import (
+    expect_assertion_error,
+    spec_state_test,
+    with_eip7441_and_later,
+)
 from eth2spec.test.helpers.eip7441 import compute_whisk_tracker
 from eth2spec.test.helpers.keys import whisk_ks_initial
 
@@ -27,7 +31,10 @@ def get_and_populate_pre_shuffle_trackers(spec, state, body):
 
 
 def get_pre_shuffle_trackers(spec, state, body):
-    return [state.whisk_candidate_trackers[i] for i in spec.get_shuffle_indices(body.randao_reveal)]
+    return [
+        state.whisk_candidate_trackers[i]
+        for i in spec.get_shuffle_indices(body.randao_reveal)
+    ]
 
 
 def set_state_epoch(spec, state, epoch):
@@ -77,7 +84,9 @@ def test_no_shuffle_minus_selection_gap(spec, state):
 def test_no_shuffle_minus_one_and_selection_gap(spec, state):
     body = empty_block_body(spec)
     set_state_epoch(
-        spec, state, spec.config.EPOCHS_PER_SHUFFLING_PHASE - spec.config.PROPOSER_SELECTION_GAP - 1
+        spec,
+        state,
+        spec.config.EPOCHS_PER_SHUFFLING_PHASE - spec.config.PROPOSER_SELECTION_GAP - 1,
     )
     yield from run_process_shuffled_trackers(spec, state, body)
 
@@ -132,6 +141,8 @@ def test_invalid_gap_non_zero_proof(spec, state):
 @spec_state_test
 def test_invalid_gap_non_zero_trackers(spec, state):
     body = empty_block_body(spec)
-    body.whisk_post_shuffle_trackers = get_and_populate_pre_shuffle_trackers(spec, state, body)
+    body.whisk_post_shuffle_trackers = get_and_populate_pre_shuffle_trackers(
+        spec, state, body
+    )
     set_state_epoch_selection_gap(spec, state)
     yield from run_process_shuffled_trackers(spec, state, body, valid=False)

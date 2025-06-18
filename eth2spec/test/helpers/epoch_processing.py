@@ -38,7 +38,9 @@ def get_process_calls(spec):
     ]
 
 
-def run_epoch_processing_to(spec, state, process_name: str, enable_slots_processing=True):
+def run_epoch_processing_to(
+    spec, state, process_name: str, enable_slots_processing=True
+):
     """
     Processes to the next epoch transition, up to, but not including, the sub-transition named ``process_name``
     """

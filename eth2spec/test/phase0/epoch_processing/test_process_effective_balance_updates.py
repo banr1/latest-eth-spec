@@ -16,7 +16,9 @@ def test_effective_balance_hysteresis(spec, state):
     yield from run_test_effective_balance_hysteresis(spec, state)
 
 
-def run_test_effective_balance_hysteresis(spec, state, with_compounding_credentials=False):
+def run_test_effective_balance_hysteresis(
+    spec, state, with_compounding_credentials=False
+):
     assert is_post_electra(spec) or not with_compounding_credentials
     # Prepare state up to the final-updates.
     # Then overwrite the balances, we only want to focus to be on the hysteresis based changes.
@@ -48,15 +50,30 @@ def run_test_effective_balance_hysteresis(spec, state, with_compounding_credenti
         (max, max - inc - 1, max - (2 * inc), "past 1 step lower, double step"),
         (max, max - inc + 1, max - inc, "close to 1 step lower"),
         (min, min + (hys_inc * up), min, "bigger balance, but not high enough"),
-        (min, min + (hys_inc * up) + 1, min + inc, "bigger balance, high enough, but small step"),
+        (
+            min,
+            min + (hys_inc * up) + 1,
+            min + inc,
+            "bigger balance, high enough, but small step",
+        ),
         (
             min,
             min + (hys_inc * div * 2) - 1,
             min + inc,
             "bigger balance, high enough, close to double step",
         ),
-        (min, min + (hys_inc * div * 2), min + (2 * inc), "exact two step balance increment"),
-        (min, min + (hys_inc * div * 2) + 1, min + (2 * inc), "over two steps, round down"),
+        (
+            min,
+            min + (hys_inc * div * 2),
+            min + (2 * inc),
+            "exact two step balance increment",
+        ),
+        (
+            min,
+            min + (hys_inc * div * 2) + 1,
+            min + (2 * inc),
+            "over two steps, round down",
+        ),
     ]
 
     if with_compounding_credentials:
@@ -75,8 +92,18 @@ def run_test_effective_balance_hysteresis(spec, state, with_compounding_credenti
                 min + inc,
                 "bigger balance, high enough, close to double step",
             ),
-            (min, min + (hys_inc * div * 2), min + (2 * inc), "exact two step balance increment"),
-            (min, min + (hys_inc * div * 2) + 1, min + (2 * inc), "over two steps, round down"),
+            (
+                min,
+                min + (hys_inc * div * 2),
+                min + (2 * inc),
+                "exact two step balance increment",
+            ),
+            (
+                min,
+                min + (hys_inc * div * 2) + 1,
+                min + (2 * inc),
+                "over two steps, round down",
+            ),
             (min, min * 2 + 1, min * 2, "top up or consolidation doubling the balance"),
             (
                 min,

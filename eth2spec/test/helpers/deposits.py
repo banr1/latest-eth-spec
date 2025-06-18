@@ -19,17 +19,27 @@ def mock_deposit(spec, state, index):
     """
     Mock validator at ``index`` as having just made a deposit
     """
-    assert spec.is_active_validator(state.validators[index], spec.get_current_epoch(state))
+    assert spec.is_active_validator(
+        state.validators[index], spec.get_current_epoch(state)
+    )
     state.validators[index].activation_eligibility_epoch = spec.FAR_FUTURE_EPOCH
     state.validators[index].activation_epoch = spec.FAR_FUTURE_EPOCH
     state.validators[index].effective_balance = spec.MAX_EFFECTIVE_BALANCE
     if is_post_altair(spec):
         state.inactivity_scores[index] = 0
-    assert not spec.is_active_validator(state.validators[index], spec.get_current_epoch(state))
+    assert not spec.is_active_validator(
+        state.validators[index], spec.get_current_epoch(state)
+    )
 
 
 def build_deposit_data(
-    spec, pubkey, privkey, amount, withdrawal_credentials, fork_version=None, signed=False
+    spec,
+    pubkey,
+    privkey,
+    amount,
+    withdrawal_credentials,
+    fork_version=None,
+    signed=False,
 ):
     deposit_data = spec.DepositData(
         pubkey=pubkey,
@@ -48,14 +58,18 @@ def sign_deposit_data(spec, deposit_data, privkey, fork_version=None):
         amount=deposit_data.amount,
     )
     if fork_version is not None:
-        domain = spec.compute_domain(domain_type=spec.DOMAIN_DEPOSIT, fork_version=fork_version)
+        domain = spec.compute_domain(
+            domain_type=spec.DOMAIN_DEPOSIT, fork_version=fork_version
+        )
     else:
         domain = spec.compute_domain(spec.DOMAIN_DEPOSIT)
     signing_root = spec.compute_signing_root(deposit_message, domain)
     deposit_data.signature = bls.Sign(privkey, signing_root)
 
 
-def build_deposit(spec, deposit_data_list, pubkey, privkey, amount, withdrawal_credentials, signed):
+def build_deposit(
+    spec, deposit_data_list, pubkey, privkey, amount, withdrawal_credentials, signed
+):
     deposit_data = build_deposit_data(
         spec, pubkey, privkey, amount, withdrawal_credentials, signed=signed
     )
@@ -69,7 +83,9 @@ def deposit_from_context(spec, deposit_data_list, index):
     root = hash_tree_root(
         List[spec.DepositData, 2**spec.DEPOSIT_CONTRACT_TREE_DEPTH](*deposit_data_list)
     )
-    tree = calc_merkle_tree_from_leaves(tuple([d.hash_tree_root() for d in deposit_data_list]))
+    tree = calc_merkle_tree_from_leaves(
+        tuple([d.hash_tree_root() for d in deposit_data_list])
+    )
     proof = list(get_merkle_proof(tree, item_index=index, tree_len=32)) + [
         len(deposit_data_list).to_bytes(32, "little")
     ]
@@ -83,7 +99,12 @@ def deposit_from_context(spec, deposit_data_list, index):
 
 
 def prepare_full_genesis_deposits(
-    spec, amount, deposit_count, min_pubkey_index=0, signed=False, deposit_data_list=None
+    spec,
+    amount,
+    deposit_count,
+    min_pubkey_index=0,
+    signed=False,
+    deposit_data_list=None,
 ):
     if deposit_data_list is None:
         deposit_data_list = []
@@ -269,7 +290,9 @@ def prepare_pending_deposit(
 #
 
 
-def run_deposit_processing(spec, state, deposit, validator_index, valid=True, effective=True):
+def run_deposit_processing(
+    spec, state, deposit, validator_index, valid=True, effective=True
+):
     """
     Run ``process_deposit``, yielding:
       - pre-state ('pre')
@@ -321,29 +344,53 @@ def run_deposit_processing(spec, state, deposit, validator_index, valid=True, ef
         if not is_post_electra(spec):
             if is_top_up:
                 # Top-ups do not change effective balance
-                assert state.validators[validator_index].effective_balance == pre_effective_balance
+                assert (
+                    state.validators[validator_index].effective_balance
+                    == pre_effective_balance
+                )
             else:
                 effective_balance = min(spec.MAX_EFFECTIVE_BALANCE, deposit.data.amount)
-                effective_balance -= effective_balance % spec.EFFECTIVE_BALANCE_INCREMENT
-                assert state.validators[validator_index].effective_balance == effective_balance
-            assert get_balance(state, validator_index) == pre_balance + deposit.data.amount
+                effective_balance -= (
+                    effective_balance % spec.EFFECTIVE_BALANCE_INCREMENT
+                )
+                assert (
+                    state.validators[validator_index].effective_balance
+                    == effective_balance
+                )
+            assert (
+                get_balance(state, validator_index) == pre_balance + deposit.data.amount
+            )
         else:
             # no balance or effective balance changes on deposit processing post electra
             assert get_balance(state, validator_index) == pre_balance
-            assert state.validators[validator_index].effective_balance == pre_effective_balance
+            assert (
+                state.validators[validator_index].effective_balance
+                == pre_effective_balance
+            )
             # new correct balance deposit queued up
             assert len(state.pending_deposits) == pre_pending_deposits_count + 1
-            assert state.pending_deposits[pre_pending_deposits_count].pubkey == deposit.data.pubkey
             assert (
-                state.pending_deposits[pre_pending_deposits_count].withdrawal_credentials
+                state.pending_deposits[pre_pending_deposits_count].pubkey
+                == deposit.data.pubkey
+            )
+            assert (
+                state.pending_deposits[
+                    pre_pending_deposits_count
+                ].withdrawal_credentials
                 == deposit.data.withdrawal_credentials
             )
-            assert state.pending_deposits[pre_pending_deposits_count].amount == deposit.data.amount
+            assert (
+                state.pending_deposits[pre_pending_deposits_count].amount
+                == deposit.data.amount
+            )
             assert (
                 state.pending_deposits[pre_pending_deposits_count].signature
                 == deposit.data.signature
             )
-            assert state.pending_deposits[pre_pending_deposits_count].slot == spec.GENESIS_SLOT
+            assert (
+                state.pending_deposits[pre_pending_deposits_count].slot
+                == spec.GENESIS_SLOT
+            )
 
     assert state.eth1_deposit_index == state.eth1_data.deposit_count
 
@@ -361,7 +408,9 @@ def run_deposit_processing_with_specific_fork_version(
     deposit_message = spec.DepositMessage(
         pubkey=pubkey, withdrawal_credentials=withdrawal_credentials, amount=amount
     )
-    domain = spec.compute_domain(domain_type=spec.DOMAIN_DEPOSIT, fork_version=fork_version)
+    domain = spec.compute_domain(
+        domain_type=spec.DOMAIN_DEPOSIT, fork_version=fork_version
+    )
     deposit_data = spec.DepositData(
         pubkey=pubkey,
         withdrawal_credentials=withdrawal_credentials,
@@ -379,7 +428,9 @@ def run_deposit_processing_with_specific_fork_version(
     )
 
 
-def run_deposit_request_processing(spec, state, deposit_request, validator_index, effective=True):
+def run_deposit_request_processing(
+    spec, state, deposit_request, validator_index, effective=True
+):
     """
     Run ``process_deposit_request``, yielding:
       - pre-state ('pre')
@@ -409,7 +460,9 @@ def run_deposit_request_processing(spec, state, deposit_request, validator_index
     assert len(state.balances) == pre_validator_count
 
     if is_top_up:
-        assert state.validators[validator_index].effective_balance == pre_effective_balance
+        assert (
+            state.validators[validator_index].effective_balance == pre_effective_balance
+        )
         assert state.balances[validator_index] == pre_balance
 
     pending_deposit = spec.PendingDeposit(
@@ -423,7 +476,9 @@ def run_deposit_request_processing(spec, state, deposit_request, validator_index
     assert state.pending_deposits == [pending_deposit]
 
 
-def run_pending_deposit_applying(spec, state, pending_deposit, validator_index, effective=True):
+def run_pending_deposit_applying(
+    spec, state, pending_deposit, validator_index, effective=True
+):
     """
     Enqueue ``pending_deposit`` and run epoch processing with ``process_pending_deposits``, yielding:
       - pre-state ('pre')
@@ -457,7 +512,9 @@ def run_pending_deposit_applying(spec, state, pending_deposit, validator_index, 
 
     run_process_slots_up_to_epoch_boundary(spec, state)
     yield "pre_epoch", state
-    run_epoch_processing_to(spec, state, "process_pending_deposits", enable_slots_processing=False)
+    run_epoch_processing_to(
+        spec, state, "process_pending_deposits", enable_slots_processing=False
+    )
 
     yield "pre", state
     spec.process_pending_deposits(state)
@@ -473,17 +530,26 @@ def run_pending_deposit_applying(spec, state, pending_deposit, validator_index, 
             assert len(state.validators) == pre_validator_count
             assert len(state.balances) == pre_validator_count
             # Top-ups do not change effective balance
-            assert state.validators[validator_index].effective_balance == pre_effective_balance
+            assert (
+                state.validators[validator_index].effective_balance
+                == pre_effective_balance
+            )
         else:
             # new validator is added
             assert len(state.validators) == pre_validator_count + 1
             assert len(state.balances) == pre_validator_count + 1
             # effective balance is set correctly
-            max_effective_balace = spec.get_max_effective_balance(state.validators[validator_index])
+            max_effective_balace = spec.get_max_effective_balance(
+                state.validators[validator_index]
+            )
             effective_balance = min(max_effective_balace, pending_deposit.amount)
             effective_balance -= effective_balance % spec.EFFECTIVE_BALANCE_INCREMENT
-            assert state.validators[validator_index].effective_balance == effective_balance
-        assert get_balance(state, validator_index) == pre_balance + pending_deposit.amount
+            assert (
+                state.validators[validator_index].effective_balance == effective_balance
+            )
+        assert (
+            get_balance(state, validator_index) == pre_balance + pending_deposit.amount
+        )
     else:
         assert len(state.validators) == pre_validator_count
         assert len(state.balances) == pre_validator_count

@@ -73,7 +73,10 @@ def run_test_with_randao_setup_epochs(spec, state, randao_setup_epochs):
         expect_lookahead_changed = False
 
     yield from run_test_effective_balance_increase_changes_lookahead(
-        spec, state, randao_setup_epochs, expect_lookahead_changed=expect_lookahead_changed
+        spec,
+        state,
+        randao_setup_epochs,
+        expect_lookahead_changed=expect_lookahead_changed,
     )
 
 
@@ -86,7 +89,9 @@ def test_effective_balance_increase_changes_lookahead(spec, state):
     for randao_setup_epochs in range(4, 20):
         try:
             state_copy = state.copy()
-            yield from run_test_with_randao_setup_epochs(spec, state_copy, randao_setup_epochs)
+            yield from run_test_with_randao_setup_epochs(
+                spec, state_copy, randao_setup_epochs
+            )
             return
         except AssertionError:
             # If the randao_setup_epochs is not the right one to make the test pass,
@@ -134,7 +139,9 @@ def test_effective_decrease_balance_updates_lookahead(spec, state):
     post_eb = state.validators[validator_change_index].effective_balance
 
     assert pre_eb != post_eb, "Effective balance should have changed."
-    assert post_eb < validator_change_threshold, "Effective balance should be below the threshold."
+    assert post_eb < validator_change_threshold, (
+        "Effective balance should be below the threshold."
+    )
 
     # Calculate the actual lookahead
     actual_lookahead = simulate_lookahead(spec, state)[: spec.SLOTS_PER_EPOCH]

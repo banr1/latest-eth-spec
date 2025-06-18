@@ -1,6 +1,10 @@
 from copy import deepcopy
 
-from eth2spec.test.context import expect_assertion_error, spec_state_test, with_all_phases
+from eth2spec.test.context import (
+    expect_assertion_error,
+    spec_state_test,
+    with_all_phases,
+)
 from eth2spec.test.helpers.block import build_empty_block_for_next_slot
 from eth2spec.test.helpers.execution_payload import (
     build_empty_execution_payload,
@@ -59,7 +63,9 @@ def test_invalid_slot_block_header(spec, state):
 def test_invalid_proposer_index(spec, state):
     block = build_empty_block_for_next_slot(spec, state)
 
-    active_indices = spec.get_active_validator_indices(state, spec.get_current_epoch(state))
+    active_indices = spec.get_active_validator_indices(
+        state, spec.get_current_epoch(state)
+    )
     active_indices = [i for i in active_indices if i != block.proposer_index]
     block.proposer_index = active_indices[0]  # invalid proposer index
 
@@ -73,11 +79,13 @@ def test_invalid_parent_root(spec, state):
     block.parent_root = b"\12" * 32  # invalid prev root
     if is_post_eip7732(spec):
         payload = build_empty_execution_payload(spec, state)
-        block.body.signed_execution_payload_header.message.block_hash = compute_el_block_hash(
-            spec, payload, state
+        block.body.signed_execution_payload_header.message.block_hash = (
+            compute_el_block_hash(spec, payload, state)
         )
     elif is_post_bellatrix(spec):
-        block.body.execution_payload.block_hash = compute_el_block_hash_for_block(spec, block)
+        block.body.execution_payload.block_hash = compute_el_block_hash_for_block(
+            spec, block
+        )
 
     yield from run_block_header_processing(spec, state, block, valid=False)
 
@@ -96,8 +104,8 @@ def test_invalid_multiple_blocks_single_slot(spec, state):
     child_block.parent_root = block.hash_tree_root()
     if is_post_eip7732(spec):
         payload = build_empty_execution_payload(spec, state)
-        child_block.body.signed_execution_payload_header.message.block_hash = compute_el_block_hash(
-            spec, payload, state
+        child_block.body.signed_execution_payload_header.message.block_hash = (
+            compute_el_block_hash(spec, payload, state)
         )
     elif is_post_bellatrix(spec):
         child_block.body.execution_payload.block_hash = compute_el_block_hash_for_block(
