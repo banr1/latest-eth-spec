@@ -8,52 +8,34 @@ from typing import (
     Tuple,
     Optional,
     TypeVar,
-    NamedTuple,
-    Final,
+    Union as PyUnion
 )
 
 from eth2spec.utils.ssz.ssz_impl import hash_tree_root, copy, uint_to_bytes
 from eth2spec.utils.ssz.ssz_typing import (
     View,
-    boolean,
-    Container,
     List,
-    Vector,
     uint8,
     uint32,
     uint64,
     uint256,
-    Bytes1,
-    Bytes4,
     Bytes32,
     Bytes48,
-    Bytes96,
     Bitlist,
 )
 from eth2spec.utils.ssz.ssz_typing import Bitvector  # noqa: F401
 from eth2spec.utils import bls
 from eth2spec.utils.hash_function import hash
 
-
-from typing import NewType, Union as PyUnion
-
-from eth2spec.phase0 import mainnet as phase0
 from eth2spec.test.helpers.merkle import build_proof
 from eth2spec.utils.ssz.ssz_typing import Path
-
-
-from eth2spec.altair import mainnet as altair
-from eth2spec.utils.ssz.ssz_typing import Bytes8, Bytes20, ByteList, ByteVector
-
-
-from eth2spec.bellatrix import mainnet as bellatrix
-
-
-from eth2spec.capella import mainnet as capella
-
-
-from eth2spec.deneb import mainnet as deneb
 from eth2spec.utils.ssz.ssz_impl import ssz_serialize, ssz_deserialize
+
+from eth2spec.phase0 import mainnet as phase0
+from eth2spec.altair import mainnet as altair
+from eth2spec.bellatrix import mainnet as bellatrix
+from eth2spec.capella import mainnet as capella
+from eth2spec.deneb import mainnet as deneb
 
 from eth2spec.latest.constants_0 import *
 from eth2spec.latest.funcs_0 import *

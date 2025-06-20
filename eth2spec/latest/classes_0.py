@@ -1,19 +1,14 @@
 from eth2spec.utils.ssz.ssz_typing import (
-    View,
-    boolean,
-    Container,
-    List,
     Vector,
     uint8,
-    uint32,
     uint64,
     uint256,
-    Bytes1,
     Bytes4,
+    Bytes8,
+    Bytes20,
     Bytes32,
     Bytes48,
     Bytes96,
-    Bitlist,
 )
 
 from eth2spec.latest.funcs_0 import *
