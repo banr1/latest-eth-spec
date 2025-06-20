@@ -60,7 +60,10 @@ from eth2spec.capella import mainnet as capella
 from eth2spec.deneb import mainnet as deneb
 from eth2spec.utils.ssz.ssz_impl import ssz_serialize, ssz_deserialize
 
-from eth2spec.latest import long_constants
+from eth2spec.latest.constants_0 import *
+from eth2spec.latest.funcs_0 import *
+from eth2spec.latest.classes_0 import *
+from eth2spec.latest.constants_1 import *
 
 
 SSZObject = TypeVar("SSZObject", bound=View)
@@ -75,294 +78,6 @@ TPoint = TypeVar("TPoint")  # For generic function. G1 or G2 point.
 
 
 fork = "electra"
-
-
-def ceillog2(x: int) -> uint64:
-    if x < 1:
-        raise ValueError(f"ceillog2 accepts only positive values, x={x}")
-    return uint64((x - 1).bit_length())
-
-
-def floorlog2(x: int) -> uint64:
-    if x < 1:
-        raise ValueError(f"floorlog2 accepts only positive values, x={x}")
-    return uint64(x.bit_length() - 1)
-
-
-FINALIZED_ROOT_GINDEX = GeneralizedIndex(105)
-CURRENT_SYNC_COMMITTEE_GINDEX = GeneralizedIndex(54)
-NEXT_SYNC_COMMITTEE_GINDEX = GeneralizedIndex(55)
-EXECUTION_PAYLOAD_GINDEX = GeneralizedIndex(25)
-FINALIZED_ROOT_GINDEX_ELECTRA = GeneralizedIndex(169)
-CURRENT_SYNC_COMMITTEE_GINDEX_ELECTRA = GeneralizedIndex(86)
-NEXT_SYNC_COMMITTEE_GINDEX_ELECTRA = GeneralizedIndex(87)
-
-
-class Slot(uint64):
-    pass
-
-
-class Epoch(uint64):
-    pass
-
-
-class CommitteeIndex(uint64):
-    pass
-
-
-class ValidatorIndex(uint64):
-    pass
-
-
-class Gwei(uint64):
-    pass
-
-
-class Root(Bytes32):
-    pass
-
-
-class Hash32(Bytes32):
-    pass
-
-
-class Version(Bytes4):
-    pass
-
-
-class DomainType(Bytes4):
-    pass
-
-
-class ForkDigest(Bytes4):
-    pass
-
-
-class Domain(Bytes32):
-    pass
-
-
-class BLSPubkey(Bytes48):
-    pass
-
-
-class BLSSignature(Bytes96):
-    pass
-
-
-class NodeID(uint256):
-    pass
-
-
-class SubnetID(uint64):
-    pass
-
-
-class Ether(uint64):
-    pass
-
-
-class ParticipationFlags(uint8):
-    pass
-
-
-class FinalityBranch(Vector[Bytes32, floorlog2(FINALIZED_ROOT_GINDEX_ELECTRA)]):  # type: ignore
-    pass
-
-
-class CurrentSyncCommitteeBranch(
-    Vector[Bytes32, floorlog2(CURRENT_SYNC_COMMITTEE_GINDEX_ELECTRA)]
-):  # type: ignore
-    pass
-
-
-class NextSyncCommitteeBranch(
-    Vector[Bytes32, floorlog2(NEXT_SYNC_COMMITTEE_GINDEX_ELECTRA)]
-):  # type: ignore
-    pass
-
-
-class ExecutionAddress(Bytes20):
-    pass
-
-
-class PayloadId(Bytes8):
-    pass
-
-
-class WithdrawalIndex(uint64):
-    pass
-
-
-class ExecutionBranch(Vector[Bytes32, floorlog2(EXECUTION_PAYLOAD_GINDEX)]):  # type: ignore
-    pass
-
-
-class VersionedHash(Bytes32):
-    pass
-
-
-class BlobIndex(uint64):
-    pass
-
-
-class G1Point(Bytes48):
-    pass
-
-
-class G2Point(Bytes96):
-    pass
-
-
-class KZGCommitment(Bytes48):
-    pass
-
-
-class KZGProof(Bytes48):
-    pass
-
-
-# Constant vars
-UINT64_MAX = uint64(2**64 - 1)
-UINT64_MAX_SQRT = uint64(4294967295)
-GENESIS_SLOT = Slot(0)
-GENESIS_EPOCH = Epoch(0)
-FAR_FUTURE_EPOCH = Epoch(2**64 - 1)
-BASE_REWARDS_PER_EPOCH = uint64(4)
-DEPOSIT_CONTRACT_TREE_DEPTH = uint64(2**5)
-JUSTIFICATION_BITS_LENGTH = uint64(4)
-ENDIANNESS: Final = "little"
-BLS_WITHDRAWAL_PREFIX = Bytes1("0x00")
-ETH1_ADDRESS_WITHDRAWAL_PREFIX = Bytes1("0x01")
-DOMAIN_BEACON_PROPOSER = DomainType("0x00000000")
-DOMAIN_BEACON_ATTESTER = DomainType("0x01000000")
-DOMAIN_RANDAO = DomainType("0x02000000")
-DOMAIN_DEPOSIT = DomainType("0x03000000")
-DOMAIN_VOLUNTARY_EXIT = DomainType("0x04000000")
-DOMAIN_SELECTION_PROOF = DomainType("0x05000000")
-DOMAIN_AGGREGATE_AND_PROOF = DomainType("0x06000000")
-DOMAIN_APPLICATION_MASK = DomainType("0x00000001")
-INTERVALS_PER_SLOT = uint64(3)
-NODE_ID_BITS = 256
-MAX_CONCURRENT_REQUESTS = 2
-TARGET_AGGREGATORS_PER_COMMITTEE = 2**4
-ETH_TO_GWEI = uint64(10**9)
-SAFETY_DECAY = uint64(10)
-TIMELY_SOURCE_FLAG_INDEX = 0
-TIMELY_TARGET_FLAG_INDEX = 1
-TIMELY_HEAD_FLAG_INDEX = 2
-TIMELY_SOURCE_WEIGHT = uint64(14)
-TIMELY_TARGET_WEIGHT = uint64(26)
-TIMELY_HEAD_WEIGHT = uint64(14)
-SYNC_REWARD_WEIGHT = uint64(2)
-PROPOSER_WEIGHT = uint64(8)
-WEIGHT_DENOMINATOR = uint64(64)
-DOMAIN_SYNC_COMMITTEE = DomainType("0x07000000")
-DOMAIN_SYNC_COMMITTEE_SELECTION_PROOF = DomainType("0x08000000")
-DOMAIN_CONTRIBUTION_AND_PROOF = DomainType("0x09000000")
-PARTICIPATION_FLAG_WEIGHTS = [
-    TIMELY_SOURCE_WEIGHT,
-    TIMELY_TARGET_WEIGHT,
-    TIMELY_HEAD_WEIGHT,
-]
-G2_POINT_AT_INFINITY = BLSSignature(b"\xc0" + b"\x00" * 95)
-TARGET_AGGREGATORS_PER_SYNC_SUBCOMMITTEE = 2**4
-SYNC_COMMITTEE_SUBNET_COUNT = 4
-MAX_REQUEST_LIGHT_CLIENT_UPDATES = 2**7
-SAFE_SLOTS_TO_IMPORT_OPTIMISTICALLY = 128
-DOMAIN_BLS_TO_EXECUTION_CHANGE = DomainType("0x0A000000")
-VERSIONED_HASH_VERSION_KZG = Bytes1("0x01")
-BLS_MODULUS = (
-    52435875175126190479447740508185965837690552500527637822603658699938581184513
-)
-BYTES_PER_COMMITMENT = uint64(48)
-BYTES_PER_PROOF = uint64(48)
-BYTES_PER_FIELD_ELEMENT = uint64(32)
-G1_POINT_AT_INFINITY = Bytes48(b"\xc0" + b"\x00" * 47)
-KZG_ENDIANNESS: Final = "big"
-PRIMITIVE_ROOT_OF_UNITY = 7
-FIAT_SHAMIR_PROTOCOL_DOMAIN = b"FSBLOBVERIFY_V1_"
-RANDOM_CHALLENGE_KZG_BATCH_DOMAIN = b"RCKZGBATCH___V1_"
-KZG_SETUP_G2_LENGTH = 65
-UNSET_DEPOSIT_REQUESTS_START_INDEX = uint64(2**64 - 1)
-FULL_EXIT_REQUEST_AMOUNT = uint64(0)
-COMPOUNDING_WITHDRAWAL_PREFIX = Bytes1("0x02")
-DEPOSIT_REQUEST_TYPE = Bytes1("0x00")
-WITHDRAWAL_REQUEST_TYPE = Bytes1("0x01")
-CONSOLIDATION_REQUEST_TYPE = Bytes1("0x02")
-
-
-# Preset vars
-MAX_COMMITTEES_PER_SLOT = uint64(64)
-TARGET_COMMITTEE_SIZE = uint64(128)
-MAX_VALIDATORS_PER_COMMITTEE = uint64(2048)
-SHUFFLE_ROUND_COUNT = uint64(90)
-HYSTERESIS_QUOTIENT = uint64(4)
-HYSTERESIS_DOWNWARD_MULTIPLIER = uint64(1)
-HYSTERESIS_UPWARD_MULTIPLIER = uint64(5)
-MIN_DEPOSIT_AMOUNT = Gwei(1000000000)
-MAX_EFFECTIVE_BALANCE = Gwei(32000000000)
-EFFECTIVE_BALANCE_INCREMENT = Gwei(1000000000)
-MIN_ATTESTATION_INCLUSION_DELAY = uint64(1)
-SLOTS_PER_EPOCH = uint64(32)
-MIN_SEED_LOOKAHEAD = uint64(1)
-MAX_SEED_LOOKAHEAD = uint64(4)
-MIN_EPOCHS_TO_INACTIVITY_PENALTY = uint64(4)
-EPOCHS_PER_ETH1_VOTING_PERIOD = uint64(64)
-SLOTS_PER_HISTORICAL_ROOT = uint64(8192)
-EPOCHS_PER_HISTORICAL_VECTOR = uint64(65536)
-EPOCHS_PER_SLASHINGS_VECTOR = uint64(8192)
-HISTORICAL_ROOTS_LIMIT = uint64(16777216)
-VALIDATOR_REGISTRY_LIMIT = uint64(1099511627776)
-BASE_REWARD_FACTOR = uint64(64)
-WHISTLEBLOWER_REWARD_QUOTIENT = uint64(512)
-PROPOSER_REWARD_QUOTIENT = uint64(8)
-INACTIVITY_PENALTY_QUOTIENT = uint64(67108864)
-MIN_SLASHING_PENALTY_QUOTIENT = uint64(128)
-PROPORTIONAL_SLASHING_MULTIPLIER = uint64(1)
-MAX_PROPOSER_SLASHINGS = 16
-MAX_ATTESTER_SLASHINGS = 2
-MAX_ATTESTATIONS = 128
-MAX_DEPOSITS = 16
-MAX_VOLUNTARY_EXITS = 16
-INACTIVITY_PENALTY_QUOTIENT_ALTAIR = uint64(50331648)
-MIN_SLASHING_PENALTY_QUOTIENT_ALTAIR = uint64(64)
-PROPORTIONAL_SLASHING_MULTIPLIER_ALTAIR = uint64(2)
-SYNC_COMMITTEE_SIZE = uint64(512)
-EPOCHS_PER_SYNC_COMMITTEE_PERIOD = uint64(256)
-MIN_SYNC_COMMITTEE_PARTICIPANTS = 1
-UPDATE_TIMEOUT = 8192
-INACTIVITY_PENALTY_QUOTIENT_BELLATRIX = uint64(16777216)
-MIN_SLASHING_PENALTY_QUOTIENT_BELLATRIX = uint64(32)
-PROPORTIONAL_SLASHING_MULTIPLIER_BELLATRIX = uint64(3)
-MAX_BYTES_PER_TRANSACTION = uint64(1073741824)
-MAX_TRANSACTIONS_PER_PAYLOAD = uint64(1048576)
-BYTES_PER_LOGS_BLOOM = uint64(256)
-MAX_EXTRA_DATA_BYTES = 32
-MAX_BLS_TO_EXECUTION_CHANGES = 16
-MAX_WITHDRAWALS_PER_PAYLOAD = uint64(16)
-MAX_VALIDATORS_PER_WITHDRAWALS_SWEEP = 16384
-MAX_BLOB_COMMITMENTS_PER_BLOCK = uint64(4096)
-FIELD_ELEMENTS_PER_BLOB = uint64(4096)
-KZG_COMMITMENT_INCLUSION_PROOF_DEPTH = uint64(17)
-MIN_ACTIVATION_BALANCE = Gwei(32000000000)
-MAX_EFFECTIVE_BALANCE_ELECTRA = Gwei(2048000000000)
-MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA = uint64(4096)
-WHISTLEBLOWER_REWARD_QUOTIENT_ELECTRA = uint64(4096)
-PENDING_DEPOSITS_LIMIT = uint64(134217728)
-PENDING_PARTIAL_WITHDRAWALS_LIMIT = uint64(134217728)
-PENDING_CONSOLIDATIONS_LIMIT = uint64(262144)
-MAX_ATTESTER_SLASHINGS_ELECTRA = 1
-MAX_ATTESTATIONS_ELECTRA = 8
-MAX_DEPOSIT_REQUESTS_PER_PAYLOAD = uint64(8192)
-MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD = uint64(16)
-MAX_CONSOLIDATION_REQUESTS_PER_PAYLOAD = uint64(2)
-MAX_PENDING_PARTIALS_PER_WITHDRAWALS_SWEEP = uint64(8)
-MAX_PENDING_DEPOSITS_PER_EPOCH = uint64(16)
-
-
-# Preset computed constants
-BYTES_PER_BLOB = uint64(BYTES_PER_FIELD_ELEMENT * FIELD_ELEMENTS_PER_BLOB)
 
 
 class Transaction(ByteList[MAX_BYTES_PER_TRANSACTION]):
@@ -5283,7 +4998,7 @@ def blob_to_kzg_commitment(blob: Blob) -> KZGCommitment:
     """
     assert len(blob) == BYTES_PER_BLOB
     return g1_lincomb(
-        bit_reversal_permutation(long_constants.KZG_SETUP_G1_LAGRANGE),
+        bit_reversal_permutation(KZG_SETUP_G1_LAGRANGE),
         blob_to_polynomial(blob),
     )
 
@@ -5317,7 +5032,7 @@ def verify_kzg_proof_impl(
     """
     # Verify: P - y = Q * (X - z)
     X_minus_z = bls.add(
-        bls.bytes96_to_G2(long_constants.KZG_SETUP_G2_MONOMIAL[1]),
+        bls.bytes96_to_G2(KZG_SETUP_G2_MONOMIAL[1]),
         bls.multiply(bls.G2(), -z),
     )
     P_minus_y = bls.add(bls.bytes48_to_G1(commitment), bls.multiply(bls.G1(), -y))
@@ -5370,7 +5085,7 @@ def verify_kzg_proof_batch(
         [
             [
                 bls.bytes48_to_G1(proof_lincomb),
-                bls.neg(bls.bytes96_to_G2(long_constants.KZG_SETUP_G2_MONOMIAL[1])),
+                bls.neg(bls.bytes96_to_G2(KZG_SETUP_G2_MONOMIAL[1])),
             ],
             [
                 bls.add(
@@ -5453,7 +5168,7 @@ def compute_kzg_proof_impl(
 
     return KZGProof(
         g1_lincomb(
-            bit_reversal_permutation(long_constants.KZG_SETUP_G1_LAGRANGE),
+            bit_reversal_permutation(KZG_SETUP_G1_LAGRANGE),
             quotient_polynomial,
         )
     ), y
