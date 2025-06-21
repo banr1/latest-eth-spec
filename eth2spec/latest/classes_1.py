@@ -13,7 +13,7 @@ from typing import (
     TypeVar,
     NamedTuple,
     Final,
-    Protocol
+    Protocol,
 )
 
 from eth2spec.utils import bls
@@ -41,6 +41,7 @@ from eth2spec.latest.funcs_0 import *
 from eth2spec.latest.constants_0 import *
 from eth2spec.latest.classes_0 import *
 from eth2spec.latest.constants_1 import *
+
 
 class Transaction(ByteList[MAX_BYTES_PER_TRANSACTION]):
     pass
