@@ -2,6 +2,7 @@
 The KZG Implementation
 ^^^^^^^^^^^^^^^^^^^^^^
 """
+
 from hashlib import sha256
 from typing import Tuple
 
@@ -21,12 +22,8 @@ from py_ecc.optimized_bls12_381.optimized_pairing import (
 
 from ethereum.utils.hexadecimal import hex_to_bytes
 
-FQ = Tuple[
-    optimized_bls12_381_FQ, optimized_bls12_381_FQ, optimized_bls12_381_FQ
-]
-FQ2 = Tuple[
-    optimized_bls12_381_FQ2, optimized_bls12_381_FQ2, optimized_bls12_381_FQ2
-]
+FQ = Tuple[optimized_bls12_381_FQ, optimized_bls12_381_FQ, optimized_bls12_381_FQ]
+FQ2 = Tuple[optimized_bls12_381_FQ2, optimized_bls12_381_FQ2, optimized_bls12_381_FQ2]
 
 
 class KZGCommitment(Bytes48):
@@ -78,8 +75,7 @@ def kzg_commitment_to_versioned_hash(
     Convert a KZG commitment to a versioned hash.
     """
     return VersionedHash(
-        VERSIONED_HASH_VERSION_KZG
-        + Bytes32(sha256(kzg_commitment).digest())[1:]
+        VERSIONED_HASH_VERSION_KZG + Bytes32(sha256(kzg_commitment).digest())[1:]
     )
 
 

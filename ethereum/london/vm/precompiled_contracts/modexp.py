@@ -11,6 +11,7 @@ Introduction
 
 Implementation of the `MODEXP` precompiled contract.
 """
+
 from ethereum_types.bytes import Bytes
 from ethereum_types.numeric import U256, Uint
 
@@ -53,16 +54,12 @@ def modexp(evm: Evm) -> None:
     exp = Uint.from_be_bytes(buffer_read(data, exp_start, exp_length))
 
     modulus_start = exp_start + exp_length
-    modulus = Uint.from_be_bytes(
-        buffer_read(data, modulus_start, modulus_length)
-    )
+    modulus = Uint.from_be_bytes(buffer_read(data, modulus_start, modulus_length))
 
     if modulus == 0:
         evm.output = Bytes(b"\x00") * modulus_length
     else:
-        evm.output = pow(base, exp, modulus).to_bytes(
-            Uint(modulus_length), "big"
-        )
+        evm.output = pow(base, exp, modulus).to_bytes(Uint(modulus_length), "big")
 
 
 def complexity(base_length: U256, modulus_length: U256) -> Uint:

@@ -11,6 +11,7 @@ Introduction
 
 Implementations of the EVM Memory instructions.
 """
+
 from ethereum_types.bytes import Bytes
 from ethereum_types.numeric import U256, Uint
 
@@ -76,9 +77,7 @@ def mstore8(evm: Evm) -> None:
     value = pop(evm.stack)
 
     # GAS
-    extend_memory = calculate_gas_extend_memory(
-        evm.memory, [(start_position, U256(1))]
-    )
+    extend_memory = calculate_gas_extend_memory(evm.memory, [(start_position, U256(1))])
 
     charge_gas(evm, GAS_VERY_LOW + extend_memory.cost)
 
@@ -112,9 +111,7 @@ def mload(evm: Evm) -> None:
 
     # OPERATION
     evm.memory += b"\x00" * extend_memory.expand_by
-    value = U256.from_be_bytes(
-        memory_read_bytes(evm.memory, start_position, U256(32))
-    )
+    value = U256.from_be_bytes(memory_read_bytes(evm.memory, start_position, U256(32)))
     push(evm.stack, value)
 
     # PROGRAM COUNTER

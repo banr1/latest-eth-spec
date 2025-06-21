@@ -16,6 +16,7 @@ It consists of a main account trie and storage tries for each contract.
 There is a distinction between an account that does not exist and
 `EMPTY_ACCOUNT`.
 """
+
 from dataclasses import dataclass, field
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -36,9 +37,7 @@ class State:
     _main_trie: Trie[Address, Optional[Account]] = field(
         default_factory=lambda: Trie(secured=True, default=None)
     )
-    _storage_tries: Dict[Address, Trie[Bytes32, U256]] = field(
-        default_factory=dict
-    )
+    _storage_tries: Dict[Address, Trie[Bytes32, U256]] = field(default_factory=dict)
     _snapshots: List[
         Tuple[
             Trie[Address, Optional[Account]],
@@ -150,9 +149,7 @@ def get_account_optional(state: State, address: Address) -> Optional[Account]:
     return account
 
 
-def set_account(
-    state: State, address: Address, account: Optional[Account]
-) -> None:
+def set_account(state: State, address: Address, account: Optional[Account]) -> None:
     """
     Set the `Account` object at an address. Setting to `None` deletes
     the account (but not its storage, see `destroy_account()`).
@@ -232,9 +229,7 @@ def get_storage(state: State, address: Address, key: Bytes32) -> U256:
     return value
 
 
-def set_storage(
-    state: State, address: Address, key: Bytes32, value: U256
-) -> None:
+def set_storage(state: State, address: Address, key: Bytes32, value: U256) -> None:
     """
     Set a value at a storage key on an account. Setting to `U256(0)` deletes
     the key.
@@ -365,9 +360,7 @@ def account_has_storage(state: State, address: Address) -> bool:
     return address in state._storage_tries
 
 
-def modify_state(
-    state: State, address: Address, f: Callable[[Account], None]
-) -> None:
+def modify_state(state: State, address: Address, f: Callable[[Account], None]) -> None:
     """
     Modify an `Account` in the `State`.
     """

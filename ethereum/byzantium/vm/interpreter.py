@@ -116,9 +116,7 @@ def process_message_call(message: Message) -> MessageCallOutput:
             evm = process_create_message(message)
     else:
         evm = process_message(message)
-        if account_exists_and_is_empty(
-            block_env.state, Address(message.target)
-        ):
+        if account_exists_and_is_empty(block_env.state, Address(message.target)):
             evm.touched_accounts.add(Address(message.target))
 
     if evm.error:
@@ -131,9 +129,7 @@ def process_message_call(message: Message) -> MessageCallOutput:
         touched_accounts = evm.touched_accounts
         refund_counter += U256(evm.refund_counter)
 
-    tx_end = TransactionEnd(
-        int(message.gas) - int(evm.gas_left), evm.output, evm.error
-    )
+    tx_end = TransactionEnd(int(message.gas) - int(evm.gas_left), evm.output, evm.error)
     evm_trace(evm, tx_end)
 
     return MessageCallOutput(
@@ -218,9 +214,7 @@ def process_message(message: Message) -> Evm:
     touch_account(state, message.current_target)
 
     if message.should_transfer_value and message.value != 0:
-        move_ether(
-            state, message.caller, message.current_target, message.value
-        )
+        move_ether(state, message.caller, message.current_target, message.value)
 
     evm = execute_code(message)
     if evm.error:

@@ -11,15 +11,14 @@ Introduction
 
 Byte specific utility functions used in this specification.
 """
+
 from typing import Union
 
 from ethereum_types.bytes import Bytes
 from ethereum_types.numeric import FixedUnsigned, Uint
 
 
-def left_pad_zero_bytes(
-    value: Bytes, size: Union[int, FixedUnsigned, Uint]
-) -> Bytes:
+def left_pad_zero_bytes(value: Bytes, size: Union[int, FixedUnsigned, Uint]) -> Bytes:
     """
     Left pad zeroes to `value` if its length is less than the given `size`.
 
@@ -38,9 +37,7 @@ def left_pad_zero_bytes(
     return value.rjust(int(size), b"\x00")
 
 
-def right_pad_zero_bytes(
-    value: Bytes, size: Union[int, FixedUnsigned, Uint]
-) -> Bytes:
+def right_pad_zero_bytes(value: Bytes, size: Union[int, FixedUnsigned, Uint]) -> Bytes:
     """
     Right pad zeroes to `value` if its length is less than the given `size`.
 

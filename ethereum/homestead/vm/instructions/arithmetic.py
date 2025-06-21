@@ -318,9 +318,7 @@ def exp(evm: Evm) -> None:
     # function is inaccurate leading to wrong results.
     exponent_bits = exponent.bit_length()
     exponent_bytes = (exponent_bits + Uint(7)) // Uint(8)
-    charge_gas(
-        evm, GAS_EXPONENTIATION + GAS_EXPONENTIATION_PER_BYTE * exponent_bytes
-    )
+    charge_gas(evm, GAS_EXPONENTIATION + GAS_EXPONENTIATION_PER_BYTE * exponent_bytes)
 
     # OPERATION
     result = U256(pow(base, exponent, Uint(U256.MAX_VALUE) + Uint(1)))

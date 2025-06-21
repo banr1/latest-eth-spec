@@ -37,9 +37,7 @@ class State:
     _main_trie: Trie[Address, Optional[Account]] = field(
         default_factory=lambda: Trie(secured=True, default=None)
     )
-    _storage_tries: Dict[Address, Trie[Bytes32, U256]] = field(
-        default_factory=dict
-    )
+    _storage_tries: Dict[Address, Trie[Bytes32, U256]] = field(default_factory=dict)
     _snapshots: List[
         Tuple[
             Trie[Address, Optional[Account]],
@@ -57,9 +55,7 @@ class TransientStorage:
     """
 
     _tries: Dict[Address, Trie[Bytes32, U256]] = field(default_factory=dict)
-    _snapshots: List[Dict[Address, Trie[Bytes32, U256]]] = field(
-        default_factory=list
-    )
+    _snapshots: List[Dict[Address, Trie[Bytes32, U256]]] = field(default_factory=list)
 
 
 def close_state(state: State) -> None:
@@ -73,9 +69,7 @@ def close_state(state: State) -> None:
     del state.created_accounts
 
 
-def begin_transaction(
-    state: State, transient_storage: TransientStorage
-) -> None:
+def begin_transaction(state: State, transient_storage: TransientStorage) -> None:
     """
     Start a state transaction.
 
@@ -100,9 +94,7 @@ def begin_transaction(
     )
 
 
-def commit_transaction(
-    state: State, transient_storage: TransientStorage
-) -> None:
+def commit_transaction(state: State, transient_storage: TransientStorage) -> None:
     """
     Commit a state transaction.
 
@@ -120,9 +112,7 @@ def commit_transaction(
     transient_storage._snapshots.pop()
 
 
-def rollback_transaction(
-    state: State, transient_storage: TransientStorage
-) -> None:
+def rollback_transaction(state: State, transient_storage: TransientStorage) -> None:
     """
     Rollback a state transaction, resetting the state to the point when the
     corresponding `start_transaction()` call was made.
@@ -189,9 +179,7 @@ def get_account_optional(state: State, address: Address) -> Optional[Account]:
     return account
 
 
-def set_account(
-    state: State, address: Address, account: Optional[Account]
-) -> None:
+def set_account(state: State, address: Address, account: Optional[Account]) -> None:
     """
     Set the `Account` object at an address. Setting to `None` deletes
     the account (but not its storage, see `destroy_account()`).
@@ -291,9 +279,7 @@ def get_storage(state: State, address: Address, key: Bytes32) -> U256:
     return value
 
 
-def set_storage(
-    state: State, address: Address, key: Bytes32, value: U256
-) -> None:
+def set_storage(state: State, address: Address, key: Bytes32, value: U256) -> None:
     """
     Set a value at a storage key on an account. Setting to `U256(0)` deletes
     the key.
@@ -442,11 +428,7 @@ def is_account_empty(state: State, address: Address) -> bool:
         False otherwise.
     """
     account = get_account(state, address)
-    return (
-        account.nonce == Uint(0)
-        and account.code == b""
-        and account.balance == 0
-    )
+    return account.nonce == Uint(0) and account.code == b"" and account.balance == 0
 
 
 def account_exists_and_is_empty(state: State, address: Address) -> bool:
@@ -496,9 +478,7 @@ def is_account_alive(state: State, address: Address) -> bool:
     return account is not None and account != EMPTY_ACCOUNT
 
 
-def modify_state(
-    state: State, address: Address, f: Callable[[Account], None]
-) -> None:
+def modify_state(state: State, address: Address, f: Callable[[Account], None]) -> None:
     """
     Modify an `Account` in the `State`.
     """

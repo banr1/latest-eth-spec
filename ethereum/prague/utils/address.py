@@ -12,6 +12,7 @@ Introduction
 Address specific functions used in this prague version of
 specification.
 """
+
 from typing import Union
 
 from ethereum_rlp import rlp

@@ -74,9 +74,7 @@ class InsufficientMaxFeePerGasError(InvalidTransaction):
     The base fee per gas of the block in which the transaction is included.
     """
 
-    def __init__(
-        self, transaction_max_fee_per_gas: Uint, block_base_fee_per_gas: Uint
-    ):
+    def __init__(self, transaction_max_fee_per_gas: Uint, block_base_fee_per_gas: Uint):
         super().__init__(
             f"Insufficient max fee per gas "
             f"({transaction_max_fee_per_gas} < {block_base_fee_per_gas})"

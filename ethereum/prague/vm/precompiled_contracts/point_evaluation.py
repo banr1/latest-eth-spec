@@ -11,6 +11,7 @@ Introduction
 
 Implementation of the POINT EVALUATION precompiled contract.
 """
+
 from ethereum_types.bytes import Bytes, Bytes32, Bytes48
 from ethereum_types.numeric import U256
 
@@ -25,7 +26,9 @@ from ...vm.exceptions import KZGProofError
 from ...vm.gas import GAS_POINT_EVALUATION, charge_gas
 
 FIELD_ELEMENTS_PER_BLOB = 4096
-BLS_MODULUS = 52435875175126190479447740508185965837690552500527637822603658699938581184513  # noqa: E501
+BLS_MODULUS = (
+    52435875175126190479447740508185965837690552500527637822603658699938581184513  # noqa: E501
+)
 VERSIONED_HASH_VERSION_KZG = b"\x01"
 
 

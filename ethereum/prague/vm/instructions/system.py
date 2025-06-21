@@ -78,9 +78,7 @@ def generic_create(
         process_create_message,
     )
 
-    call_data = memory_read_bytes(
-        evm.memory, memory_start_position, memory_size
-    )
+    call_data = memory_read_bytes(evm.memory, memory_start_position, memory_size)
     if len(call_data) > 2 * MAX_CODE_SIZE:
         raise OutOfGasError
 
@@ -107,9 +105,7 @@ def generic_create(
     if account_has_code_or_nonce(
         evm.message.block_env.state, contract_address
     ) or account_has_storage(evm.message.block_env.state, contract_address):
-        increment_nonce(
-            evm.message.block_env.state, evm.message.current_target
-        )
+        increment_nonce(evm.message.block_env.state, evm.message.current_target)
         push(evm.stack, U256(0))
         return
 
@@ -172,9 +168,7 @@ def create(evm: Evm) -> None:
     evm.memory += b"\x00" * extend_memory.expand_by
     contract_address = compute_contract_address(
         evm.message.current_target,
-        get_account(
-            evm.message.block_env.state, evm.message.current_target
-        ).nonce,
+        get_account(evm.message.block_env.state, evm.message.current_target).nonce,
     )
 
     generic_create(
@@ -263,9 +257,7 @@ def return_(evm: Evm) -> None:
 
     # OPERATION
     evm.memory += b"\x00" * extend_memory.expand_by
-    evm.output = memory_read_bytes(
-        evm.memory, memory_start_position, memory_size
-    )
+    evm.output = memory_read_bytes(evm.memory, memory_start_position, memory_size)
 
     evm.running = False
 
@@ -535,9 +527,7 @@ def selfdestruct(evm: Evm) -> None:
 
     if (
         not is_account_alive(evm.message.block_env.state, beneficiary)
-        and get_account(
-            evm.message.block_env.state, evm.message.current_target
-        ).balance
+        and get_account(evm.message.block_env.state, evm.message.current_target).balance
         != 0
     ):
         gas_cost += GAS_SELF_DESTRUCT_NEW_ACCOUNT
@@ -547,9 +537,7 @@ def selfdestruct(evm: Evm) -> None:
         raise WriteInStaticContext
 
     originator = evm.message.current_target
-    originator_balance = get_account(
-        evm.message.block_env.state, originator
-    ).balance
+    originator_balance = get_account(evm.message.block_env.state, originator).balance
 
     move_ether(
         evm.message.block_env.state,

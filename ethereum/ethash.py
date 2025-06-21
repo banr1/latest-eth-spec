@@ -179,9 +179,7 @@ def dataset_size(block_number: Uint) -> Uint:
     [`generate_dataset`]: ref:ethereum.ethash.generate_dataset
     [`generate_dataset_item`]: ref:ethereum.ethash.generate_dataset_item
     """
-    size = INITIAL_DATASET_SIZE + (
-        DATASET_EPOCH_GROWTH_SIZE * epoch(block_number)
-    )
+    size = INITIAL_DATASET_SIZE + (DATASET_EPOCH_GROWTH_SIZE * epoch(block_number))
     size -= MIX_BYTES
     while not is_prime(size // MIX_BYTES):
         size -= Uint(2) * MIX_BYTES
@@ -239,14 +237,10 @@ def generate_cache(block_number: Uint) -> Tuple[Tuple[U32, ...], ...]:
             second_cache_item = cache[
                 U32.from_le_bytes(cache[index][0:4]) % U32(cache_size_words)
             ]
-            result = Bytes(
-                [a ^ b for a, b in zip(first_cache_item, second_cache_item)]
-            )
+            result = Bytes([a ^ b for a, b in zip(first_cache_item, second_cache_item)])
             cache[index] = keccak512(result)
 
-    return tuple(
-        le_bytes_to_uint32_sequence(cache_item) for cache_item in cache
-    )
+    return tuple(le_bytes_to_uint32_sequence(cache_item) for cache_item in cache)
 
 
 def fnv(a: Union[Uint, U32], b: Union[Uint, U32]) -> U32:
@@ -270,9 +264,7 @@ def fnv(a: Union[Uint, U32], b: Union[Uint, U32]) -> U32:
     return U32(result)
 
 
-def fnv_hash(
-    mix_integers: Tuple[U32, ...], data: Tuple[U32, ...]
-) -> Tuple[U32, ...]:
+def fnv_hash(mix_integers: Tuple[U32, ...], data: Tuple[U32, ...]) -> Tuple[U32, ...]:
     """
     Combines `data` into `mix_integers` using [`fnv`]. See [`hashimoto`] and
     [`generate_dataset_item`].
@@ -281,14 +273,10 @@ def fnv_hash(
     [`generate_dataset_item`]: ref:ethereum.ethash.generate_dataset_item
     [`fnv`]: ref:ethereum.ethash.fnv
     """
-    return tuple(
-        fnv(mix_integers[i], data[i]) for i in range(len(mix_integers))
-    )
+    return tuple(fnv(mix_integers[i], data[i]) for i in range(len(mix_integers)))
 
 
-def generate_dataset_item(
-    cache: Tuple[Tuple[U32, ...], ...], index: Uint
-) -> Hash64:
+def generate_dataset_item(cache: Tuple[Tuple[U32, ...], ...], index: Uint) -> Hash64:
     """
     Generate a particular dataset item 0-indexed by `index` by hashing
     pseudorandomly-selected entries from `cache` together. See [`fnv`] and
@@ -302,9 +290,7 @@ def generate_dataset_item(
     [`generate_cache`]: ref:ethereum.ethash.generate_cache
     """
     mix = keccak512(
-        (
-            le_uint32_sequence_to_uint(cache[index % ulen(cache)]) ^ index
-        ).to_le_bytes64()
+        (le_uint32_sequence_to_uint(cache[index % ulen(cache)]) ^ index).to_le_bytes64()
     )
 
     mix_integers = le_bytes_to_uint32_sequence(mix)
@@ -382,9 +368,7 @@ def hashimoto(
 
     compressed_mix = []
     for i in range(0, len(mix), 4):
-        compressed_mix.append(
-            fnv(fnv(fnv(mix[i], mix[i + 1]), mix[i + 2]), mix[i + 3])
-        )
+        compressed_mix.append(fnv(fnv(fnv(mix[i], mix[i + 1]), mix[i + 2]), mix[i + 3]))
 
     mix_digest = le_uint32_sequence_to_bytes(compressed_mix)
     result = keccak256(seed_hash + mix_digest)

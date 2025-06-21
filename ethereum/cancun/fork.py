@@ -83,9 +83,7 @@ GAS_LIMIT_ADJUSTMENT_FACTOR = Uint(1024)
 GAS_LIMIT_MINIMUM = Uint(5000)
 EMPTY_OMMER_HASH = keccak256(rlp.encode([]))
 SYSTEM_ADDRESS = hex_to_address("0xfffffffffffffffffffffffffffffffffffffffe")
-BEACON_ROOTS_ADDRESS = hex_to_address(
-    "0x000F3df6D732807Ef1319fB7B8bB8522d0Beac02"
-)
+BEACON_ROOTS_ADDRESS = hex_to_address("0x000F3df6D732807Ef1319fB7B8bB8522d0Beac02")
 SYSTEM_TRANSACTION_GAS = Uint(30000000)
 MAX_BLOB_GAS_PER_BLOCK = U64(786432)
 VERSIONED_HASH_VERSION_KZG = b"\x01"
@@ -216,9 +214,7 @@ def state_transition(chain: BlockChain, block: Block) -> None:
     withdrawals_root = root(block_output.withdrawals_trie)
 
     if block_output.block_gas_used != block.header.gas_used:
-        raise InvalidBlock(
-            f"{block_output.block_gas_used} != {block.header.gas_used}"
-        )
+        raise InvalidBlock(f"{block_output.block_gas_used} != {block.header.gas_used}")
     if transactions_root != block.header.transactions_root:
         raise InvalidBlock
     if block_state_root != block.header.state_root:
@@ -281,22 +277,16 @@ def calculate_base_fee_per_gas(
             Uint(1),
         )
 
-        expected_base_fee_per_gas = (
-            parent_base_fee_per_gas + base_fee_per_gas_delta
-        )
+        expected_base_fee_per_gas = parent_base_fee_per_gas + base_fee_per_gas_delta
     else:
         gas_used_delta = parent_gas_target - parent_gas_used
 
         parent_fee_gas_delta = parent_base_fee_per_gas * gas_used_delta
         target_fee_gas_delta = parent_fee_gas_delta // parent_gas_target
 
-        base_fee_per_gas_delta = (
-            target_fee_gas_delta // BASE_FEE_MAX_CHANGE_DENOMINATOR
-        )
+        base_fee_per_gas_delta = target_fee_gas_delta // BASE_FEE_MAX_CHANGE_DENOMINATOR
 
-        expected_base_fee_per_gas = (
-            parent_base_fee_per_gas - base_fee_per_gas_delta
-        )
+        expected_base_fee_per_gas = parent_base_fee_per_gas - base_fee_per_gas_delta
 
     return Uint(expected_base_fee_per_gas)
 
@@ -429,9 +419,7 @@ def check_transaction(
 
     if isinstance(tx, (FeeMarketTransaction, BlobTransaction)):
         if tx.max_fee_per_gas < tx.max_priority_fee_per_gas:
-            raise PriorityFeeGreaterThanMaxFeeError(
-                "priority fee greater than max fee"
-            )
+            raise PriorityFeeGreaterThanMaxFeeError("priority fee greater than max fee")
         if tx.max_fee_per_gas < block_env.base_fee_per_gas:
             raise InsufficientMaxFeePerGasError(
                 tx.max_fee_per_gas, block_env.base_fee_per_gas
@@ -456,15 +444,11 @@ def check_transaction(
             raise NoBlobDataError("no blob data in transaction")
         for blob_versioned_hash in tx.blob_versioned_hashes:
             if blob_versioned_hash[0:1] != VERSIONED_HASH_VERSION_KZG:
-                raise InvalidBlobVersionedHashError(
-                    "invalid blob versioned hash"
-                )
+                raise InvalidBlobVersionedHashError("invalid blob versioned hash")
 
         blob_gas_price = calculate_blob_gas_price(block_env.excess_blob_gas)
         if Uint(tx.max_fee_per_blob_gas) < blob_gas_price:
-            raise InsufficientMaxFeePerBlobGasError(
-                "insufficient max fee per blob gas"
-            )
+            raise InsufficientMaxFeePerBlobGasError("insufficient max fee per blob gas")
 
         max_gas_fee += Uint(calculate_total_blob_gas(tx)) * Uint(
             tx.max_fee_per_blob_gas
@@ -730,16 +714,12 @@ def process_transaction(
     sender_balance_after_gas_fee = (
         Uint(sender_account.balance) - effective_gas_fee - blob_gas_fee
     )
-    set_account_balance(
-        block_env.state, sender, U256(sender_balance_after_gas_fee)
-    )
+    set_account_balance(block_env.state, sender, U256(sender_balance_after_gas_fee))
 
     access_list_addresses = set()
     access_list_storage_keys = set()
     access_list_addresses.add(block_env.coinbase)
-    if isinstance(
-        tx, (AccessListTransaction, FeeMarketTransaction, BlobTransaction)
-    ):
+    if isinstance(tx, (AccessListTransaction, FeeMarketTransaction, BlobTransaction)):
         for access in tx.access_list:
             access_list_addresses.add(access.account)
             for slot in access.slots:
@@ -775,9 +755,9 @@ def process_transaction(
     transaction_fee = tx_gas_used_after_refund * priority_fee_per_gas
 
     # refund gas
-    sender_balance_after_refund = get_account(
-        block_env.state, sender
-    ).balance + U256(gas_refund_amount)
+    sender_balance_after_refund = get_account(block_env.state, sender).balance + U256(
+        gas_refund_amount
+    )
     set_account_balance(block_env.state, sender, sender_balance_after_refund)
 
     # transfer miner fees

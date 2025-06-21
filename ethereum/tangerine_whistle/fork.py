@@ -11,6 +11,7 @@ Introduction
 
 Entry point for the Ethereum specification.
 """
+
 from dataclasses import dataclass
 from typing import List, Set, Tuple
 
@@ -178,9 +179,7 @@ def state_transition(chain: BlockChain, block: Block) -> None:
     block_logs_bloom = logs_bloom(block_output.block_logs)
 
     if block_output.block_gas_used != block.header.gas_used:
-        raise InvalidBlock(
-            f"{block_output.block_gas_used} != {block.header.gas_used}"
-        )
+        raise InvalidBlock(f"{block_output.block_gas_used} != {block.header.gas_used}")
     if transactions_root != block.header.transactions_root:
         raise InvalidBlock
     if block_state_root != block.header.state_root:
@@ -227,9 +226,7 @@ def validate_header(chain: BlockChain, header: Header) -> None:
     ):
         raise InvalidBlock
 
-    parent_header = chain.blocks[
-        parent_header_number - first_block_number
-    ].header
+    parent_header = chain.blocks[parent_header_number - first_block_number].header
 
     if header.gas_used > header.gas_limit:
         raise InvalidBlock
@@ -503,8 +500,7 @@ def validate_ommers(
 
     recent_canonical_blocks = chain.blocks[-(MAX_OMMER_DEPTH + Uint(1)) :]
     recent_canonical_block_hashes = {
-        keccak256(rlp.encode(block.header))
-        for block in recent_canonical_blocks
+        keccak256(rlp.encode(block.header)) for block in recent_canonical_blocks
     }
     recent_ommers_hashes: Set[Hash32] = set()
     for block in recent_canonical_blocks:
@@ -619,9 +615,7 @@ def process_transaction(
 
     gas_fee = tx.gas * tx.gas_price
     sender_balance_after_gas_fee = Uint(sender_account.balance) - gas_fee
-    set_account_balance(
-        block_env.state, sender, U256(sender_balance_after_gas_fee)
-    )
+    set_account_balance(block_env.state, sender, U256(sender_balance_after_gas_fee))
 
     tx_env = vm.TransactionEnvironment(
         origin=sender,
@@ -647,9 +641,9 @@ def process_transaction(
     transaction_fee = tx_gas_used_after_refund * tx.gas_price
 
     # refund gas
-    sender_balance_after_refund = get_account(
-        block_env.state, sender
-    ).balance + U256(gas_refund_amount)
+    sender_balance_after_refund = get_account(block_env.state, sender).balance + U256(
+        gas_refund_amount
+    )
     set_account_balance(block_env.state, sender, sender_balance_after_refund)
 
     # transfer miner fees

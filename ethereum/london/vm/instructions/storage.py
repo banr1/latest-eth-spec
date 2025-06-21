@@ -11,6 +11,7 @@ Introduction
 
 Implementations of the EVM storage related instructions.
 """
+
 from ethereum_types.numeric import Uint
 
 from ...state import get_storage, get_storage_original, set_storage
@@ -50,9 +51,7 @@ def sload(evm: Evm) -> None:
         charge_gas(evm, GAS_COLD_SLOAD)
 
     # OPERATION
-    value = get_storage(
-        evm.message.block_env.state, evm.message.current_target, key
-    )
+    value = get_storage(evm.message.block_env.state, evm.message.current_target, key)
 
     push(evm.stack, value)
 
@@ -77,9 +76,7 @@ def sstore(evm: Evm) -> None:
         raise OutOfGasError
 
     state = evm.message.block_env.state
-    original_value = get_storage_original(
-        state, evm.message.current_target, key
-    )
+    original_value = get_storage_original(state, evm.message.current_target, key)
     current_value = get_storage(state, evm.message.current_target, key)
 
     gas_cost = Uint(0)

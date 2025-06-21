@@ -11,6 +11,7 @@ Introduction
 
 Address specific functions used in this frontier version of specification.
 """
+
 from typing import Union
 
 from ethereum_rlp import rlp

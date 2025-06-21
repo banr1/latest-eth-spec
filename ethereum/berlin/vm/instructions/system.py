@@ -73,9 +73,7 @@ def generic_create(
     # if it's not moved inside this method
     from ...vm.interpreter import STACK_DEPTH_LIMIT, process_create_message
 
-    call_data = memory_read_bytes(
-        evm.memory, memory_start_position, memory_size
-    )
+    call_data = memory_read_bytes(evm.memory, memory_start_position, memory_size)
 
     create_message_gas = max_message_call_gas(Uint(evm.gas_left))
     evm.gas_left -= create_message_gas
@@ -100,9 +98,7 @@ def generic_create(
     if account_has_code_or_nonce(
         evm.message.block_env.state, contract_address
     ) or account_has_storage(evm.message.block_env.state, contract_address):
-        increment_nonce(
-            evm.message.block_env.state, evm.message.current_target
-        )
+        increment_nonce(evm.message.block_env.state, evm.message.current_target)
         push(evm.stack, U256(0))
         return
 
@@ -163,14 +159,10 @@ def create(evm: Evm) -> None:
     evm.memory += b"\x00" * extend_memory.expand_by
     contract_address = compute_contract_address(
         evm.message.current_target,
-        get_account(
-            evm.message.block_env.state, evm.message.current_target
-        ).nonce,
+        get_account(evm.message.block_env.state, evm.message.current_target).nonce,
     )
 
-    generic_create(
-        evm, endowment, contract_address, memory_start_position, memory_size
-    )
+    generic_create(evm, endowment, contract_address, memory_start_position, memory_size)
 
     # PROGRAM COUNTER
     evm.pc += Uint(1)
@@ -212,9 +204,7 @@ def create2(evm: Evm) -> None:
         memory_read_bytes(evm.memory, memory_start_position, memory_size),
     )
 
-    generic_create(
-        evm, endowment, contract_address, memory_start_position, memory_size
-    )
+    generic_create(evm, endowment, contract_address, memory_start_position, memory_size)
 
     # PROGRAM COUNTER
     evm.pc += Uint(1)
@@ -242,9 +232,7 @@ def return_(evm: Evm) -> None:
 
     # OPERATION
     evm.memory += b"\x00" * extend_memory.expand_by
-    evm.output = memory_read_bytes(
-        evm.memory, memory_start_position, memory_size
-    )
+    evm.output = memory_read_bytes(evm.memory, memory_start_position, memory_size)
 
     evm.running = False
 
@@ -492,9 +480,7 @@ def selfdestruct(evm: Evm) -> None:
 
     if (
         not is_account_alive(evm.message.block_env.state, beneficiary)
-        and get_account(
-            evm.message.block_env.state, evm.message.current_target
-        ).balance
+        and get_account(evm.message.block_env.state, evm.message.current_target).balance
         != 0
     ):
         gas_cost += GAS_SELF_DESTRUCT_NEW_ACCOUNT
@@ -515,12 +501,8 @@ def selfdestruct(evm: Evm) -> None:
         raise WriteInStaticContext
 
     originator = evm.message.current_target
-    beneficiary_balance = get_account(
-        evm.message.block_env.state, beneficiary
-    ).balance
-    originator_balance = get_account(
-        evm.message.block_env.state, originator
-    ).balance
+    beneficiary_balance = get_account(evm.message.block_env.state, beneficiary).balance
+    originator_balance = get_account(evm.message.block_env.state, originator).balance
 
     # First Transfer to beneficiary
     set_account_balance(

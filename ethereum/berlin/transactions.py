@@ -3,6 +3,7 @@ Transactions are atomic units of work created externally to Ethereum and
 submitted to be executed. If Ethereum is viewed as a state machine,
 transactions are the events that move between states.
 """
+
 from dataclasses import dataclass
 from typing import Tuple, Union
 
@@ -305,9 +306,7 @@ def calculate_intrinsic_cost(tx: Transaction) -> Uint:
     if isinstance(tx, AccessListTransaction):
         for access in tx.access_list:
             access_list_cost += TX_ACCESS_LIST_ADDRESS_COST
-            access_list_cost += (
-                ulen(access.slots) * TX_ACCESS_LIST_STORAGE_KEY_COST
-            )
+            access_list_cost += ulen(access.slots) * TX_ACCESS_LIST_STORAGE_KEY_COST
 
     return TX_BASE_COST + data_cost + create_cost + access_list_cost
 
@@ -335,9 +334,7 @@ def recover_sender(chain_id: U64, tx: Transaction) -> Address:
     if isinstance(tx, LegacyTransaction):
         v = tx.v
         if v == 27 or v == 28:
-            public_key = secp256k1_recover(
-                r, s, v - U256(27), signing_hash_pre155(tx)
-            )
+            public_key = secp256k1_recover(r, s, v - U256(27), signing_hash_pre155(tx))
         else:
             chain_id_x2 = U256(chain_id) * U256(2)
             if v != U256(35) + chain_id_x2 and v != U256(36) + chain_id_x2:
@@ -351,9 +348,7 @@ def recover_sender(chain_id: U64, tx: Transaction) -> Address:
     elif isinstance(tx, AccessListTransaction):
         if tx.y_parity not in (U256(0), U256(1)):
             raise InvalidSignatureError("bad y_parity")
-        public_key = secp256k1_recover(
-            r, s, tx.y_parity, signing_hash_2930(tx)
-        )
+        public_key = secp256k1_recover(r, s, tx.y_parity, signing_hash_2930(tx))
 
     return Address(keccak256(public_key)[12:32])
 

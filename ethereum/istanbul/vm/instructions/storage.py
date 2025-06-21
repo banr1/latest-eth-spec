@@ -46,9 +46,7 @@ def sload(evm: Evm) -> None:
     charge_gas(evm, GAS_SLOAD)
 
     # OPERATION
-    value = get_storage(
-        evm.message.block_env.state, evm.message.current_target, key
-    )
+    value = get_storage(evm.message.block_env.state, evm.message.current_target, key)
 
     push(evm.stack, value)
 
@@ -73,9 +71,7 @@ def sstore(evm: Evm) -> None:
         raise OutOfGasError
 
     state = evm.message.block_env.state
-    original_value = get_storage_original(
-        state, evm.message.current_target, key
-    )
+    original_value = get_storage_original(state, evm.message.current_target, key)
     current_value = get_storage(state, evm.message.current_target, key)
 
     if original_value == current_value and current_value != new_value:

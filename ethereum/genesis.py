@@ -12,6 +12,7 @@ The genesis configuration for a chain is specified with a
 [`GenesisConfiguration`]: ref:ethereum.genesis.GenesisConfiguration
 [`add_genesis_block`]: ref:ethereum.genesis.add_genesis_block
 """
+
 import json
 import pkgutil
 from dataclasses import dataclass
@@ -134,9 +135,7 @@ BlockT = TypeVar("BlockT")
 
 @slotted_freezable
 @dataclass
-class GenesisFork(
-    Generic[AddressT, AccountT, StateT, TrieT, BloomT, HeaderT, BlockT]
-):
+class GenesisFork(Generic[AddressT, AccountT, StateT, TrieT, BloomT, HeaderT, BlockT]):
     """
     Pointers to the various types and functions required to build a genesis
     block.
@@ -156,9 +155,7 @@ class GenesisFork(
 
 
 def add_genesis_block(
-    hardfork: GenesisFork[
-        AddressT, AccountT, StateT, TrieT, BloomT, HeaderT, BlockT
-    ],
+    hardfork: GenesisFork[AddressT, AccountT, StateT, TrieT, BloomT, HeaderT, BlockT],
     chain: Any,
     genesis: GenesisConfiguration,
 ) -> None:

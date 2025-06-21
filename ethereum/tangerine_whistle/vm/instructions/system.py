@@ -11,6 +11,7 @@ Introduction
 
 Implementations of the EVM system related instructions.
 """
+
 from ethereum_types.bytes import Bytes0
 from ethereum_types.numeric import U256, Uint
 
@@ -83,9 +84,7 @@ def create(evm: Evm) -> None:
 
     contract_address = compute_contract_address(
         evm.message.current_target,
-        get_account(
-            evm.message.block_env.state, evm.message.current_target
-        ).nonce,
+        get_account(evm.message.block_env.state, evm.message.current_target).nonce,
     )
 
     if (
@@ -98,18 +97,12 @@ def create(evm: Evm) -> None:
     elif account_has_code_or_nonce(
         evm.message.block_env.state, contract_address
     ) or account_has_storage(evm.message.block_env.state, contract_address):
-        increment_nonce(
-            evm.message.block_env.state, evm.message.current_target
-        )
+        increment_nonce(evm.message.block_env.state, evm.message.current_target)
         push(evm.stack, U256(0))
     else:
-        call_data = memory_read_bytes(
-            evm.memory, memory_start_position, memory_size
-        )
+        call_data = memory_read_bytes(evm.memory, memory_start_position, memory_size)
 
-        increment_nonce(
-            evm.message.block_env.state, evm.message.current_target
-        )
+        increment_nonce(evm.message.block_env.state, evm.message.current_target)
 
         child_message = Message(
             block_env=evm.message.block_env,
@@ -133,9 +126,7 @@ def create(evm: Evm) -> None:
             push(evm.stack, U256(0))
         else:
             incorporate_child_on_success(evm, child_evm)
-            push(
-                evm.stack, U256.from_be_bytes(child_evm.message.current_target)
-            )
+            push(evm.stack, U256.from_be_bytes(child_evm.message.current_target))
 
     # PROGRAM COUNTER
     evm.pc += Uint(1)
@@ -163,9 +154,7 @@ def return_(evm: Evm) -> None:
 
     # OPERATION
     evm.memory += b"\x00" * extend_memory.expand_by
-    evm.output = memory_read_bytes(
-        evm.memory, memory_start_position, memory_size
-    )
+    evm.output = memory_read_bytes(evm.memory, memory_start_position, memory_size)
 
     evm.running = False
 
@@ -396,12 +385,8 @@ def selfdestruct(evm: Evm) -> None:
     charge_gas(evm, gas_cost)
 
     # OPERATION
-    beneficiary_balance = get_account(
-        evm.message.block_env.state, beneficiary
-    ).balance
-    originator_balance = get_account(
-        evm.message.block_env.state, originator
-    ).balance
+    beneficiary_balance = get_account(evm.message.block_env.state, beneficiary).balance
+    originator_balance = get_account(evm.message.block_env.state, originator).balance
 
     # First Transfer to beneficiary
     set_account_balance(

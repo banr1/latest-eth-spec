@@ -11,6 +11,7 @@ Introduction
 
 Numeric operations specific utility functions used in this specification.
 """
+
 from typing import Sequence, SupportsInt, Tuple
 
 from ethereum_types.numeric import U32, Uint
@@ -168,9 +169,7 @@ def le_uint32_sequence_to_uint(sequence: Sequence[U32]) -> Uint:
     return Uint.from_le_bytes(sequence_as_bytes)
 
 
-def taylor_exponential(
-    factor: Uint, numerator: Uint, denominator: Uint
-) -> Uint:
+def taylor_exponential(factor: Uint, numerator: Uint, denominator: Uint) -> Uint:
     """
     Approximates factor * e ** (numerator / denominator) using
     Taylor expansion.
@@ -195,8 +194,6 @@ def taylor_exponential(
     numerator_accumulated = factor * denominator
     while numerator_accumulated > Uint(0):
         output += numerator_accumulated
-        numerator_accumulated = (numerator_accumulated * numerator) // (
-            denominator * i
-        )
+        numerator_accumulated = (numerator_accumulated * numerator) // (denominator * i)
         i += Uint(1)
     return output // denominator

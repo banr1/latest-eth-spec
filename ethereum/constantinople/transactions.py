@@ -3,6 +3,7 @@ Transactions are atomic units of work created externally to Ethereum and
 submitted to be executed. If Ethereum is viewed as a state machine,
 transactions are the events that move between states.
 """
+
 from dataclasses import dataclass
 from typing import Union
 
@@ -181,9 +182,7 @@ def recover_sender(chain_id: U64, tx: Transaction) -> Address:
         raise InvalidSignatureError("bad s")
 
     if v == 27 or v == 28:
-        public_key = secp256k1_recover(
-            r, s, v - U256(27), signing_hash_pre155(tx)
-        )
+        public_key = secp256k1_recover(r, s, v - U256(27), signing_hash_pre155(tx))
     else:
         chain_id_x2 = U256(chain_id) * U256(2)
         if v != U256(35) + chain_id_x2 and v != U256(36) + chain_id_x2:

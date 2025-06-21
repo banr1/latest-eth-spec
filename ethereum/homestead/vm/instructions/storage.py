@@ -44,9 +44,7 @@ def sload(evm: Evm) -> None:
     charge_gas(evm, GAS_SLOAD)
 
     # OPERATION
-    value = get_storage(
-        evm.message.block_env.state, evm.message.current_target, key
-    )
+    value = get_storage(evm.message.block_env.state, evm.message.current_target, key)
 
     push(evm.stack, value)
 

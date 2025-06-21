@@ -12,6 +12,7 @@ Introduction
 Address specific functions used in this byzantium version of
 specification.
 """
+
 from typing import Union
 
 from ethereum_rlp import rlp

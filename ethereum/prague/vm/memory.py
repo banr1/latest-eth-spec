@@ -11,15 +11,14 @@ Introduction
 
 EVM memory operations.
 """
+
 from ethereum_types.bytes import Bytes
 from ethereum_types.numeric import U256, Uint
 
 from ethereum.utils.byte import right_pad_zero_bytes
 
 
-def memory_write(
-    memory: bytearray, start_position: U256, value: Bytes
-) -> None:
+def memory_write(memory: bytearray, start_position: U256, value: Bytes) -> None:
     """
     Writes to memory.
 
@@ -35,9 +34,7 @@ def memory_write(
     memory[start_position : int(start_position) + len(value)] = value
 
 
-def memory_read_bytes(
-    memory: bytearray, start_position: U256, size: U256
-) -> bytearray:
+def memory_read_bytes(memory: bytearray, start_position: U256, size: U256) -> bytearray:
     """
     Read bytes from memory.
 

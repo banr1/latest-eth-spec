@@ -3,6 +3,7 @@ Transactions are atomic units of work created externally to Ethereum and
 submitted to be executed. If Ethereum is viewed as a state machine,
 transactions are the events that move between states.
 """
+
 from dataclasses import dataclass
 from typing import Tuple, Union
 
@@ -588,9 +589,7 @@ def calculate_intrinsic_cost(tx: Transaction) -> Tuple[Uint, Uint]:
 
     tokens_in_calldata = Uint(zero_bytes + (len(tx.data) - zero_bytes) * 4)
     # EIP-7623 floor price (note: no EVM costs)
-    calldata_floor_gas_cost = (
-        tokens_in_calldata * FLOOR_CALLDATA_COST + TX_BASE_COST
-    )
+    calldata_floor_gas_cost = tokens_in_calldata * FLOOR_CALLDATA_COST + TX_BASE_COST
 
     data_cost = tokens_in_calldata * STANDARD_CALLDATA_TOKEN_COST
 
@@ -611,22 +610,14 @@ def calculate_intrinsic_cost(tx: Transaction) -> Tuple[Uint, Uint]:
     ):
         for access in tx.access_list:
             access_list_cost += TX_ACCESS_LIST_ADDRESS_COST
-            access_list_cost += (
-                ulen(access.slots) * TX_ACCESS_LIST_STORAGE_KEY_COST
-            )
+            access_list_cost += ulen(access.slots) * TX_ACCESS_LIST_STORAGE_KEY_COST
 
     auth_cost = Uint(0)
     if isinstance(tx, SetCodeTransaction):
         auth_cost += Uint(PER_EMPTY_ACCOUNT_COST * len(tx.authorizations))
 
     return (
-        Uint(
-            TX_BASE_COST
-            + data_cost
-            + create_cost
-            + access_list_cost
-            + auth_cost
-        ),
+        Uint(TX_BASE_COST + data_cost + create_cost + access_list_cost + auth_cost),
         calldata_floor_gas_cost,
     )
 
@@ -654,9 +645,7 @@ def recover_sender(chain_id: U64, tx: Transaction) -> Address:
     if isinstance(tx, LegacyTransaction):
         v = tx.v
         if v == 27 or v == 28:
-            public_key = secp256k1_recover(
-                r, s, v - U256(27), signing_hash_pre155(tx)
-            )
+            public_key = secp256k1_recover(r, s, v - U256(27), signing_hash_pre155(tx))
         else:
             chain_id_x2 = U256(chain_id) * U256(2)
             if v != U256(35) + chain_id_x2 and v != U256(36) + chain_id_x2:
@@ -670,27 +659,19 @@ def recover_sender(chain_id: U64, tx: Transaction) -> Address:
     elif isinstance(tx, AccessListTransaction):
         if tx.y_parity not in (U256(0), U256(1)):
             raise InvalidSignatureError("bad y_parity")
-        public_key = secp256k1_recover(
-            r, s, tx.y_parity, signing_hash_2930(tx)
-        )
+        public_key = secp256k1_recover(r, s, tx.y_parity, signing_hash_2930(tx))
     elif isinstance(tx, FeeMarketTransaction):
         if tx.y_parity not in (U256(0), U256(1)):
             raise InvalidSignatureError("bad y_parity")
-        public_key = secp256k1_recover(
-            r, s, tx.y_parity, signing_hash_1559(tx)
-        )
+        public_key = secp256k1_recover(r, s, tx.y_parity, signing_hash_1559(tx))
     elif isinstance(tx, BlobTransaction):
         if tx.y_parity not in (U256(0), U256(1)):
             raise InvalidSignatureError("bad y_parity")
-        public_key = secp256k1_recover(
-            r, s, tx.y_parity, signing_hash_4844(tx)
-        )
+        public_key = secp256k1_recover(r, s, tx.y_parity, signing_hash_4844(tx))
     elif isinstance(tx, SetCodeTransaction):
         if tx.y_parity not in (U256(0), U256(1)):
             raise InvalidSignatureError("bad y_parity")
-        public_key = secp256k1_recover(
-            r, s, tx.y_parity, signing_hash_7702(tx)
-        )
+        public_key = secp256k1_recover(r, s, tx.y_parity, signing_hash_7702(tx))
 
     return Address(keccak256(public_key)[12:32])
 
