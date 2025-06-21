@@ -1,3 +1,5 @@
+# pyright: reportInvalidTypeForm=false
+
 from dataclasses import (
     dataclass,
     field,

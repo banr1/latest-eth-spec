@@ -1,3 +1,5 @@
+# pyright: reportInvalidTypeForm=false
+
 from lru import LRU
 from typing import (
     Any,
