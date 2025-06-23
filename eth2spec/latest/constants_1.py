@@ -1,32 +1,10 @@
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Set,
-    Sequence,
-    Tuple,
-    Optional,
-    TypeVar,
-    NamedTuple,
-    Final,
-)
+from typing import Final
 
 from eth2spec.utils.ssz.ssz_typing import (
-    View,
-    boolean,
-    Container,
-    List,
     Vector,
-    uint8,
-    uint32,
     uint64,
-    uint256,
     Bytes1,
-    Bytes4,
-    Bytes32,
     Bytes48,
-    Bytes96,
-    Bitlist,
 )
 from eth2spec.latest.classes_0 import *
 

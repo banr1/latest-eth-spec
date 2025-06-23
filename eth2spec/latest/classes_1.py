@@ -5,37 +5,25 @@ from dataclasses import (
     field,
 )
 from typing import (
-    Any,
-    Callable,
     Dict,
     Set,
     Sequence,
-    Tuple,
     Optional,
-    TypeVar,
     NamedTuple,
-    Final,
     Protocol,
 )
 
 from eth2spec.utils import bls
-from eth2spec.utils.ssz.ssz_typing import Bytes8, Bytes20, ByteList, ByteVector
+from eth2spec.utils.ssz.ssz_typing import ByteList, ByteVector
 from eth2spec.utils.ssz.ssz_typing import Bitvector  # noqa: F401
 from eth2spec.utils.ssz.ssz_typing import (
-    View,
     boolean,
     Container,
     List,
     Vector,
-    uint8,
-    uint32,
     uint64,
     uint256,
-    Bytes1,
-    Bytes4,
     Bytes32,
-    Bytes48,
-    Bytes96,
     Bitlist,
 )
 
