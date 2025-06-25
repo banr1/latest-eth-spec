@@ -1,3 +1,6 @@
+# pyright: reportInvalidTypeForm=false
+
+from lru import LRU
 from typing import Any, TypeVar
 
 from eth2spec.utils.ssz.ssz_typing import (
@@ -7,6 +10,7 @@ from eth2spec.utils.ssz.ssz_typing import (
 )
 from eth2spec.utils.ssz.ssz_impl import hash_tree_root, uint_to_bytes
 from eth2spec.utils.ssz.ssz_typing import uint32
+from eth2spec.test.helpers.merkle import build_proof
 from eth2spec.capella import mainnet as capella
 from eth2spec.deneb import mainnet as deneb
 
@@ -576,3 +580,23 @@ def set_or_append_list(list: List, index: ValidatorIndex, value: Any) -> None:
         list.append(value)
     else:
         list[index] = value
+
+
+def get_subtree_index(generalized_index: GeneralizedIndex) -> uint64:
+    return uint64(generalized_index % 2 ** (floorlog2(generalized_index)))
+
+
+def cache_this(key_fn, value_fn, lru_size):  # type: ignore
+    cache_dict = LRU(size=lru_size)
+
+    def wrapper(*args, **kw):  # type: ignore
+        key = key_fn(*args, **kw)
+        if key not in cache_dict:
+            cache_dict[key] = value_fn(*args, **kw)
+        return cache_dict[key]
+
+    return wrapper
+
+
+def compute_merkle_proof(object: SSZObject, index: GeneralizedIndex) -> list[Bytes32]:
+    return build_proof(object.get_backing(), index)

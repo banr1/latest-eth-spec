@@ -1,3 +1,5 @@
+# pyright: reportInvalidTypeForm=false
+
 from typing import Tuple
 
 from eth2spec.latest.constants_0 import *
@@ -6,6 +8,9 @@ from eth2spec.latest.classes_0 import *
 from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
+
+
+GeneralizedIndex = int
 
 
 EXECUTION_ENGINE = NoopExecutionEngine()
@@ -626,3 +631,103 @@ def add_validator_to_registry(
 
 def get_index_for_new_validator(state: BeaconState) -> ValidatorIndex:
     return ValidatorIndex(len(state.validators))
+
+
+def is_valid_light_client_header(header: LightClientHeader) -> bool:
+    epoch = compute_epoch_at_slot(header.beacon.slot)
+
+    # [New in Deneb:EIP4844]
+    if epoch < config.DENEB_FORK_EPOCH:
+        if header.execution.blob_gas_used != uint64(0):
+            return False
+        if header.execution.excess_blob_gas != uint64(0):
+            return False
+
+    if epoch < config.CAPELLA_FORK_EPOCH:
+        return (
+            header.execution == ExecutionPayloadHeader()
+            and header.execution_branch == ExecutionBranch()
+        )
+
+    return is_valid_merkle_branch(
+        leaf=get_lc_execution_root(header),
+        branch=header.execution_branch,
+        depth=floorlog2(EXECUTION_PAYLOAD_GINDEX),
+        index=get_subtree_index(EXECUTION_PAYLOAD_GINDEX),
+        root=header.beacon.body_root,
+    )
+
+
+def is_valid_normalized_merkle_branch(
+    leaf: Bytes32, branch: Sequence[Bytes32], gindex: GeneralizedIndex, root: Root
+) -> bool:
+    depth = floorlog2(gindex)
+    index = get_subtree_index(gindex)
+    num_extra = len(branch) - depth
+    for i in range(num_extra):
+        if branch[i] != Bytes32():
+            return False
+    return is_valid_merkle_branch(leaf, branch[num_extra:], depth, index, root)
+
+
+def current_sync_committee_gindex_at_slot(slot: Slot) -> GeneralizedIndex:
+    epoch = compute_epoch_at_slot(slot)
+
+    # [Modified in Electra]
+    if epoch >= config.ELECTRA_FORK_EPOCH:
+        return CURRENT_SYNC_COMMITTEE_GINDEX_ELECTRA
+    return CURRENT_SYNC_COMMITTEE_GINDEX
+
+
+def get_weight(store: Store, root: Root) -> Gwei:
+    state = store.checkpoint_states[store.justified_checkpoint]
+    unslashed_and_active_indices = [
+        i
+        for i in get_active_validator_indices(state, get_current_epoch(state))
+        if not state.validators[i].slashed
+    ]
+    attestation_score = Gwei(
+        sum(
+            state.validators[i].effective_balance
+            for i in unslashed_and_active_indices
+            if (
+                i in store.latest_messages
+                and i not in store.equivocating_indices
+                and get_ancestor(
+                    store, store.latest_messages[i].root, store.blocks[root].slot
+                )
+                == root
+            )
+        )
+    )
+    if store.proposer_boost_root == Root():
+        # Return only attestation score if ``proposer_boost_root`` is not set
+        return attestation_score
+
+    # Calculate proposer score if ``proposer_boost_root`` is set
+    proposer_score = Gwei(0)
+    # Boost is applied if ``root`` is an ancestor of ``proposer_boost_root``
+    if get_ancestor(store, store.proposer_boost_root, store.blocks[root].slot) == root:
+        proposer_score = get_proposer_score(store)
+    return attestation_score + proposer_score
+
+
+def get_proposer_score(store: Store) -> Gwei:
+    justified_checkpoint_state = store.checkpoint_states[store.justified_checkpoint]
+    committee_weight = (
+        get_total_active_balance(justified_checkpoint_state) // SLOTS_PER_EPOCH
+    )
+    return (committee_weight * config.PROPOSER_SCORE_BOOST) // 100
+
+
+def get_unslashed_attesting_indices(
+    state: BeaconState, attestations: Sequence[PendingAttestation]
+) -> Set[ValidatorIndex]:
+    output: Set[ValidatorIndex] = set()
+    for a in attestations:
+        output = output.union(get_attesting_indices(state, a))
+    return set(filter(lambda index: not state.validators[index].slashed, output))
+
+
+def compute_sync_committee_period(epoch: Epoch) -> uint64:
+    return epoch // EPOCHS_PER_SYNC_COMMITTEE_PERIOD

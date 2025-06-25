@@ -1,0 +1,26 @@
+from eth2spec.latest.constants_0 import *
+from eth2spec.latest.funcs_0 import *
+from eth2spec.latest.classes_0 import *
+from eth2spec.latest.constants_1 import *
+from eth2spec.latest.classes_1 import *
+from eth2spec.latest.funcs_1 import *
+from eth2spec.latest.funcs_2 import *
+
+
+def get_aggregate_and_proof(
+    state: BeaconState,
+    aggregator_index: ValidatorIndex,
+    aggregate: Attestation,
+    privkey: int,
+) -> AggregateAndProof:
+    return AggregateAndProof(
+        aggregator_index=aggregator_index,
+        aggregate=aggregate,
+        selection_proof=get_slot_signature(state, aggregate.data.slot, privkey),
+    )
+
+
+def get_slot_signature(state: BeaconState, slot: Slot, privkey: int) -> BLSSignature:
+    domain = get_domain(state, DOMAIN_SELECTION_PROOF, compute_epoch_at_slot(slot))
+    signing_root = compute_signing_root(slot, domain)
+    return bls.Sign(privkey, signing_root)
