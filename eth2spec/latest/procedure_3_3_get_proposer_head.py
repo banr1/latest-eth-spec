@@ -5,7 +5,7 @@ from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2 import *
-from eth2spec.latest.funcs_3 import *
+from eth2spec.latest.funcs_3_3_fork_choice import *
 
 
 def get_proposer_head(store: Store, head_root: Root, slot: Slot) -> Root:

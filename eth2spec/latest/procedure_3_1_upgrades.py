@@ -13,7 +13,7 @@ from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2 import *
-from eth2spec.latest.funcs_3 import *
+from eth2spec.latest.funcs_3_1_block import *
 
 
 def upgrade_to_altair(pre: phase0.BeaconState) -> BeaconState:

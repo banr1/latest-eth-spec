@@ -5,7 +5,7 @@ from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2 import *
-from eth2spec.latest.funcs_3_9 import *
+from eth2spec.latest.funcs_3_9_light_client import *
 
 
 def process_light_client_store_force_update(

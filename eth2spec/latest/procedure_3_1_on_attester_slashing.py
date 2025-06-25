@@ -5,7 +5,7 @@ from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2 import *
-from eth2spec.latest.funcs_3 import *
+from eth2spec.latest.funcs_3_1_block import *
 
 
 def on_attester_slashing(store: Store, attester_slashing: AttesterSlashing) -> None:

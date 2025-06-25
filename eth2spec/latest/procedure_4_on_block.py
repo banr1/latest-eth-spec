@@ -9,7 +9,8 @@ from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2 import *
-from eth2spec.latest.funcs_3 import *
+from eth2spec.latest.funcs_3_1_block import *
+from eth2spec.latest.funcs_4_state_transition import *
 
 
 def on_block(store: Store, signed_block: SignedBeaconBlock) -> None:

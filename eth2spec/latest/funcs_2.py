@@ -731,3 +731,52 @@ def get_unslashed_attesting_indices(
 
 def compute_sync_committee_period(epoch: Epoch) -> uint64:
     return epoch // EPOCHS_PER_SYNC_COMMITTEE_PERIOD
+
+
+def initiate_validator_exit(state: BeaconState, index: ValidatorIndex) -> None:
+    """
+    Initiate the exit of the validator with index ``index``.
+    """
+    # Return if validator already initiated exit
+    validator = state.validators[index]
+    if validator.exit_epoch != FAR_FUTURE_EPOCH:
+        return
+
+    # Compute exit queue epoch [Modified in Electra:EIP7251]
+    exit_queue_epoch = compute_exit_epoch_and_update_churn(
+        state, validator.effective_balance
+    )
+
+    # Set validator exit epoch and withdrawable epoch
+    validator.exit_epoch = exit_queue_epoch
+    validator.withdrawable_epoch = Epoch(
+        validator.exit_epoch + config.MIN_VALIDATOR_WITHDRAWABILITY_DELAY
+    )
+
+
+def compute_exit_epoch_and_update_churn(
+    state: BeaconState, exit_balance: Gwei
+) -> Epoch:
+    earliest_exit_epoch = max(
+        state.earliest_exit_epoch,
+        compute_activation_exit_epoch(get_current_epoch(state)),
+    )
+    per_epoch_churn = get_activation_exit_churn_limit(state)
+    # New epoch for exits.
+    if state.earliest_exit_epoch < earliest_exit_epoch:
+        exit_balance_to_consume = per_epoch_churn
+    else:
+        exit_balance_to_consume = state.exit_balance_to_consume
+
+    # Exit doesn't fit in the current earliest epoch.
+    if exit_balance > exit_balance_to_consume:
+        balance_to_process = exit_balance - exit_balance_to_consume
+        additional_epochs = (balance_to_process - 1) // per_epoch_churn + 1
+        earliest_exit_epoch += additional_epochs
+        exit_balance_to_consume += additional_epochs * per_epoch_churn
+
+    # Consume the balance and update state variables.
+    state.exit_balance_to_consume = exit_balance_to_consume - exit_balance
+    state.earliest_exit_epoch = earliest_exit_epoch
+
+    return state.earliest_exit_epoch

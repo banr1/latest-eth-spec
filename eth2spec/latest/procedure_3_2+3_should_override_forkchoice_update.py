@@ -5,7 +5,8 @@ from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2 import *
-from eth2spec.latest.funcs_3 import *
+from eth2spec.latest.funcs_3_2_slot_epoch import *
+from eth2spec.latest.funcs_3_3_fork_choice import *
 
 
 def should_override_forkchoice_update(store: Store, head_root: Root) -> bool:
