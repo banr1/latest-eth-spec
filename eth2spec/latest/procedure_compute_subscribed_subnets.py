@@ -3,8 +3,15 @@ from eth2spec.latest.funcs_0 import *
 from eth2spec.latest.classes_0 import *
 from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
-from eth2spec.latest.funcs_1_static import *
+from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2 import *
+
+
+def compute_subscribed_subnets(node_id: NodeID, epoch: Epoch) -> Sequence[SubnetID]:
+    return [
+        compute_subscribed_subnet(node_id, epoch, index)
+        for index in range(config.SUBNETS_PER_NODE)
+    ]
 
 
 def compute_subscribed_subnet(node_id: NodeID, epoch: Epoch, index: int) -> SubnetID:
@@ -21,10 +28,3 @@ def compute_subscribed_subnet(node_id: NodeID, epoch: Epoch, index: int) -> Subn
         permutation_seed,
     )
     return SubnetID((permutated_prefix + index) % config.ATTESTATION_SUBNET_COUNT)
-
-
-def compute_subscribed_subnets(node_id: NodeID, epoch: Epoch) -> Sequence[SubnetID]:
-    return [
-        compute_subscribed_subnet(node_id, epoch, index)
-        for index in range(config.SUBNETS_PER_NODE)
-    ]

@@ -7,7 +7,7 @@ from eth2spec.latest.funcs_0 import *
 from eth2spec.latest.classes_0 import *
 from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
-from eth2spec.latest.funcs_1_static import *
+from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2 import *
 
 
