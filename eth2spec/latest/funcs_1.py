@@ -1,6 +1,4 @@
-from typing import (
-    TypeVar,
-)
+from typing import Any, TypeVar
 
 from eth2spec.utils.ssz.ssz_typing import (
     View,
@@ -527,3 +525,54 @@ def max_compressed_len(n: uint64) -> uint64:
     # Worst-case compressed length for a given payload of size n when using snappy:
     # https://github.com/google/snappy/blob/32ded457c0b1fe78ceb8397632c416568d6714a0/snappy.cc#L218C1-L218C47
     return uint64(32 + n + n / 6)
+
+
+def eth_aggregate_pubkeys(pubkeys: Sequence[BLSPubkey]) -> BLSPubkey:
+    return bls.AggregatePKs(pubkeys)
+
+
+def is_valid_deposit_signature(
+    pubkey: BLSPubkey,
+    withdrawal_credentials: Bytes32,
+    amount: uint64,
+    signature: BLSSignature,
+) -> bool:
+    deposit_message = DepositMessage(
+        pubkey=pubkey,
+        withdrawal_credentials=withdrawal_credentials,
+        amount=amount,
+    )
+    # Fork-agnostic domain since deposits are valid across forks
+    domain = compute_domain(DOMAIN_DEPOSIT)
+    signing_root = compute_signing_root(deposit_message, domain)
+    return bls.Verify(pubkey, signing_root, signature)
+
+
+def get_validator_from_deposit(
+    pubkey: BLSPubkey, withdrawal_credentials: Bytes32, amount: uint64
+) -> Validator:
+    validator = Validator(
+        pubkey=pubkey,
+        withdrawal_credentials=withdrawal_credentials,
+        effective_balance=Gwei(0),
+        slashed=False,
+        activation_eligibility_epoch=FAR_FUTURE_EPOCH,
+        activation_epoch=FAR_FUTURE_EPOCH,
+        exit_epoch=FAR_FUTURE_EPOCH,
+        withdrawable_epoch=FAR_FUTURE_EPOCH,
+    )
+
+    # [Modified in Electra:EIP7251]
+    max_effective_balance = get_max_effective_balance(validator)
+    validator.effective_balance = min(
+        amount - amount % EFFECTIVE_BALANCE_INCREMENT, max_effective_balance
+    )
+
+    return validator
+
+
+def set_or_append_list(list: List, index: ValidatorIndex, value: Any) -> None:
+    if index == len(list):
+        list.append(value)
+    else:
+        list[index] = value
