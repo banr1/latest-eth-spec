@@ -45,6 +45,7 @@ from eth2spec.latest.classes_0 import *
 from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1_static import *
+from eth2spec.latest.funcs_2 import *
 
 
 SSZObject = TypeVar("SSZObject", bound=View)
@@ -217,20 +218,6 @@ def compute_committee(
         indices[compute_shuffled_index(uint64(i), uint64(len(indices)), seed)]
         for i in range(start, end)
     ]
-
-
-def compute_epoch_at_slot(slot: Slot) -> Epoch:
-    """
-    Return the epoch number at ``slot``.
-    """
-    return Epoch(slot // SLOTS_PER_EPOCH)
-
-
-def compute_start_slot_at_epoch(epoch: Epoch) -> Slot:
-    """
-    Return the start slot of ``epoch``.
-    """
-    return Slot(epoch * SLOTS_PER_EPOCH)
 
 
 def compute_activation_exit_epoch(epoch: Epoch) -> Epoch:
@@ -1451,20 +1438,8 @@ def get_forkchoice_store(anchor_state: BeaconState, anchor_block: BeaconBlock) -
     )
 
 
-def get_slots_since_genesis(store: Store) -> int:
-    return (store.time - store.genesis_time) // config.SECONDS_PER_SLOT
-
-
-def get_current_slot(store: Store) -> Slot:
-    return Slot(GENESIS_SLOT + get_slots_since_genesis(store))
-
-
 def get_current_store_epoch(store: Store) -> Epoch:
     return compute_epoch_at_slot(get_current_slot(store))
-
-
-def compute_slots_since_epoch_start(slot: Slot) -> int:
-    return slot - compute_start_slot_at_epoch(compute_epoch_at_slot(slot))
 
 
 def get_ancestor(store: Store, root: Root, slot: Slot) -> Root:
@@ -1621,21 +1596,6 @@ def get_head(store: Store) -> Root:
         head = max(children, key=lambda root: (get_weight(store, root), root))
 
 
-def update_checkpoints(
-    store: Store, justified_checkpoint: Checkpoint, finalized_checkpoint: Checkpoint
-) -> None:
-    """
-    Update checkpoints in store if necessary
-    """
-    # Update justified checkpoint
-    if justified_checkpoint.epoch > store.justified_checkpoint.epoch:
-        store.justified_checkpoint = justified_checkpoint
-
-    # Update finalized checkpoint
-    if finalized_checkpoint.epoch > store.finalized_checkpoint.epoch:
-        store.finalized_checkpoint = finalized_checkpoint
-
-
 def update_unrealized_checkpoints(
     store: Store,
     unrealized_justified_checkpoint: Checkpoint,
@@ -1775,30 +1735,6 @@ def compute_pulled_up_tip(store: Store, block_root: Root) -> None:
         )
 
 
-def on_tick_per_slot(store: Store, time: uint64) -> None:
-    previous_slot = get_current_slot(store)
-
-    # Update store time
-    store.time = time
-
-    current_slot = get_current_slot(store)
-
-    # If this is a new slot, reset store.proposer_boost_root
-    if current_slot > previous_slot:
-        store.proposer_boost_root = Root()
-
-    # If a new epoch, pull-up justification and finalization from previous epoch
-    if (
-        current_slot > previous_slot
-        and compute_slots_since_epoch_start(current_slot) == 0
-    ):
-        update_checkpoints(
-            store,
-            store.unrealized_justified_checkpoint,
-            store.unrealized_finalized_checkpoint,
-        )
-
-
 def validate_target_epoch_against_current_time(
     store: Store, attestation: Attestation
 ) -> None:
@@ -1871,18 +1807,6 @@ def update_latest_messages(
             store.latest_messages[i] = LatestMessage(
                 epoch=target.epoch, root=beacon_block_root
             )
-
-
-def on_tick(store: Store, time: uint64) -> None:
-    # If the ``store.time`` falls behind, while loop catches up slot by slot
-    # to ensure that every previous slot is processed with ``on_tick_per_slot``
-    tick_slot = (time - store.genesis_time) // config.SECONDS_PER_SLOT
-    while get_current_slot(store) < tick_slot:
-        previous_time = (
-            store.genesis_time + (get_current_slot(store) + 1) * config.SECONDS_PER_SLOT
-        )
-        on_tick_per_slot(store, previous_time)
-    on_tick_per_slot(store, time)
 
 
 def on_block(store: Store, signed_block: SignedBeaconBlock) -> None:
