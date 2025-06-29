@@ -6,12 +6,10 @@ from typing import (
     Set,
     Sequence,
     Optional,
-    TypeVar,
     Protocol,
 )
 
 from eth2spec.utils.ssz.ssz_typing import (
-    View,
     boolean,
     Container,
     List,
@@ -27,20 +25,6 @@ from eth2spec.utils.ssz.ssz_typing import (
 
 from eth2spec.latest_2.constants import *
 from eth2spec.latest_2.classes import *
-
-
-SSZObject = TypeVar("SSZObject", bound=View)
-
-
-SSZVariableName = str
-GeneralizedIndex = int
-
-
-T = TypeVar("T")  # For generic function
-TPoint = TypeVar("TPoint")  # For generic function. G1 or G2 point.
-
-
-fork = "electra"
 
 
 class Fork(Container):

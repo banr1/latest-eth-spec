@@ -38,9 +38,6 @@ T = TypeVar("T")  # For generic function
 TPoint = TypeVar("TPoint")  # For generic function. G1 or G2 point.
 
 
-fork = "electra"
-
-
 def ceillog2(x: int) -> uint64:
     if x < 1:
         raise ValueError(f"ceillog2 accepts only positive values, x={x}")
