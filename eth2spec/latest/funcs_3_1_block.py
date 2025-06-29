@@ -833,3 +833,25 @@ def is_slashable_attestation_data(
             and data_2.target.epoch < data_1.target.epoch
         )
     )
+
+
+def kzg_commitment_to_versioned_hash(kzg_commitment: KZGCommitment) -> VersionedHash:
+    return VERSIONED_HASH_VERSION_KZG + hash(kzg_commitment)[1:]
+
+
+def eth_fast_aggregate_verify(
+    pubkeys: Sequence[BLSPubkey], message: Bytes32, signature: BLSSignature
+) -> bool:
+    """
+    Wrapper to ``bls.FastAggregateVerify`` accepting the ``G2_POINT_AT_INFINITY`` signature when ``pubkeys`` is empty.
+    """
+    if len(pubkeys) == 0 and signature == G2_POINT_AT_INFINITY:
+        return True
+    return bls.FastAggregateVerify(pubkeys, message, signature)
+
+
+def xor(bytes_1: Bytes32, bytes_2: Bytes32) -> Bytes32:
+    """
+    Return the exclusive-or of two 32-byte strings.
+    """
+    return Bytes32(a ^ b for a, b in zip(bytes_1, bytes_2))

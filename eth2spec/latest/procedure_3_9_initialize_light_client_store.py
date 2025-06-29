@@ -7,6 +7,7 @@ from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2_write_state import *
 from eth2spec.latest.funcs_2_read_store import *
 from eth2spec.latest.funcs_2_read_state import *
+from eth2spec.latest.funcs_3_9_light_client import *
 
 
 def initialize_light_client_store(

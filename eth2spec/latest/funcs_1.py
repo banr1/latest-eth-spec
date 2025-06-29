@@ -49,13 +49,6 @@ def integer_squareroot(n: uint64) -> uint64:
     return x
 
 
-def xor(bytes_1: Bytes32, bytes_2: Bytes32) -> Bytes32:
-    """
-    Return the exclusive-or of two 32-byte strings.
-    """
-    return Bytes32(a ^ b for a, b in zip(bytes_1, bytes_2))
-
-
 def bytes_to_uint64(data: bytes) -> uint64:
     """
     Return the integer deserialization of ``data`` interpreted as ``ENDIANNESS``-endian.
@@ -343,17 +336,6 @@ def compute_shuffled_index(index: uint64, index_count: uint64, seed: Bytes32) ->
     return index
 
 
-def eth_fast_aggregate_verify(
-    pubkeys: Sequence[BLSPubkey], message: Bytes32, signature: BLSSignature
-) -> bool:
-    """
-    Wrapper to ``bls.FastAggregateVerify`` accepting the ``G2_POINT_AT_INFINITY`` signature when ``pubkeys`` is empty.
-    """
-    if len(pubkeys) == 0 and signature == G2_POINT_AT_INFINITY:
-        return True
-    return bls.FastAggregateVerify(pubkeys, message, signature)
-
-
 def is_valid_merkle_branch(
     leaf: Bytes32, branch: Sequence[Bytes32], depth: uint64, index: uint64, root: Root
 ) -> bool:
@@ -463,74 +445,6 @@ def is_partially_withdrawable_validator(validator: Validator, balance: Gwei) -> 
     )
 
 
-def kzg_commitment_to_versioned_hash(kzg_commitment: KZGCommitment) -> VersionedHash:
-    return VERSIONED_HASH_VERSION_KZG + hash(kzg_commitment)[1:]
-
-
-def get_lc_execution_root(header: LightClientHeader) -> Root:
-    epoch = compute_epoch_at_slot(header.beacon.slot)
-
-    # [New in Electra]
-    if epoch >= config.ELECTRA_FORK_EPOCH:
-        return hash_tree_root(header.execution)
-
-    # [Modified in Electra]
-    if epoch >= config.DENEB_FORK_EPOCH:
-        execution_header = deneb.ExecutionPayloadHeader(
-            parent_hash=header.execution.parent_hash,
-            fee_recipient=header.execution.fee_recipient,
-            state_root=header.execution.state_root,
-            receipts_root=header.execution.receipts_root,
-            logs_bloom=header.execution.logs_bloom,
-            prev_randao=header.execution.prev_randao,
-            block_number=header.execution.block_number,
-            gas_limit=header.execution.gas_limit,
-            gas_used=header.execution.gas_used,
-            timestamp=header.execution.timestamp,
-            extra_data=header.execution.extra_data,
-            base_fee_per_gas=header.execution.base_fee_per_gas,
-            block_hash=header.execution.block_hash,
-            transactions_root=header.execution.transactions_root,
-            withdrawals_root=header.execution.withdrawals_root,
-            blob_gas_used=header.execution.blob_gas_used,
-            excess_blob_gas=header.execution.excess_blob_gas,
-        )
-        return hash_tree_root(execution_header)
-
-    if epoch >= config.CAPELLA_FORK_EPOCH:
-        execution_header = capella.ExecutionPayloadHeader(
-            parent_hash=header.execution.parent_hash,
-            fee_recipient=header.execution.fee_recipient,
-            state_root=header.execution.state_root,
-            receipts_root=header.execution.receipts_root,
-            logs_bloom=header.execution.logs_bloom,
-            prev_randao=header.execution.prev_randao,
-            block_number=header.execution.block_number,
-            gas_limit=header.execution.gas_limit,
-            gas_used=header.execution.gas_used,
-            timestamp=header.execution.timestamp,
-            extra_data=header.execution.extra_data,
-            base_fee_per_gas=header.execution.base_fee_per_gas,
-            block_hash=header.execution.block_hash,
-            transactions_root=header.execution.transactions_root,
-            withdrawals_root=header.execution.withdrawals_root,
-        )
-        return hash_tree_root(execution_header)
-
-    return Root()
-
-
-def max_message_size() -> uint64:
-    # Allow 1024 bytes for framing and encoding overhead but at least 1MiB in case config.MAX_PAYLOAD_SIZE is small.
-    return max(max_compressed_len(config.MAX_PAYLOAD_SIZE) + 1024, 1024 * 1024)
-
-
-def max_compressed_len(n: uint64) -> uint64:
-    # Worst-case compressed length for a given payload of size n when using snappy:
-    # https://github.com/google/snappy/blob/32ded457c0b1fe78ceb8397632c416568d6714a0/snappy.cc#L218C1-L218C47
-    return uint64(32 + n + n / 6)
-
-
 def eth_aggregate_pubkeys(pubkeys: Sequence[BLSPubkey]) -> BLSPubkey:
     return bls.AggregatePKs(pubkeys)
 
@@ -600,44 +514,6 @@ def cache_this(key_fn, value_fn, lru_size):  # type: ignore
 
 def compute_merkle_proof(object: SSZObject, index: GeneralizedIndex) -> list[Bytes32]:
     return build_proof(object.get_backing(), index)
-
-
-def is_valid_light_client_header(header: LightClientHeader) -> bool:
-    epoch = compute_epoch_at_slot(header.beacon.slot)
-
-    # [New in Deneb:EIP4844]
-    if epoch < config.DENEB_FORK_EPOCH:
-        if header.execution.blob_gas_used != uint64(0):
-            return False
-        if header.execution.excess_blob_gas != uint64(0):
-            return False
-
-    if epoch < config.CAPELLA_FORK_EPOCH:
-        return (
-            header.execution == ExecutionPayloadHeader()
-            and header.execution_branch == ExecutionBranch()
-        )
-
-    return is_valid_merkle_branch(
-        leaf=get_lc_execution_root(header),
-        branch=header.execution_branch,
-        depth=floorlog2(EXECUTION_PAYLOAD_GINDEX),
-        index=get_subtree_index(EXECUTION_PAYLOAD_GINDEX),
-        root=header.beacon.body_root,
-    )
-
-
-def compute_sync_committee_period(epoch: Epoch) -> uint64:
-    return epoch // EPOCHS_PER_SYNC_COMMITTEE_PERIOD
-
-
-def current_sync_committee_gindex_at_slot(slot: Slot) -> GeneralizedIndex:
-    epoch = compute_epoch_at_slot(slot)
-
-    # [Modified in Electra]
-    if epoch >= config.ELECTRA_FORK_EPOCH:
-        return CURRENT_SYNC_COMMITTEE_GINDEX_ELECTRA
-    return CURRENT_SYNC_COMMITTEE_GINDEX
 
 
 def is_valid_normalized_merkle_branch(
