@@ -1,58 +1,10 @@
 # pyright: reportInvalidTypeForm=false
 
-from lru import LRU
-from dataclasses import (
-    dataclass,
-    field,
-)
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Set,
-    Sequence,
-    Tuple,
-    Optional,
-    TypeVar,
-    NamedTuple,
-    Final,
-    Union as PyUnion,
-    Protocol,
-)
+from typing import Sequence, TypeVar
 
-from eth2spec.utils.ssz.ssz_impl import hash_tree_root, copy, uint_to_bytes, ssz_serialize, ssz_deserialize
-from eth2spec.utils.ssz.ssz_typing import (
-    View,
-    boolean,
-    Container,
-    List,
-    Vector,
-    uint8,
-    uint32,
-    uint64,
-    uint256,
-    Bytes1,
-    Bytes4,
-    Bytes8,
-    Bytes20,
-    Bytes32,
-    Bytes48,
-    Bytes96,
-    Bitlist,
-    Bitvector,
-    ByteList,
-    ByteVector,
-    Path,
-)
-from eth2spec.utils import bls
-from eth2spec.utils.hash_function import hash
-from eth2spec.test.helpers.merkle import build_proof
+from eth2spec.utils.ssz.ssz_impl import hash_tree_root, copy
+from eth2spec.utils.ssz.ssz_typing import View, uint64
 
-from eth2spec.phase0 import mainnet as phase0
-from eth2spec.altair import mainnet as altair
-from eth2spec.bellatrix import mainnet as bellatrix
-from eth2spec.capella import mainnet as capella
-from eth2spec.deneb import mainnet as deneb
 
 from eth2spec.latest_2.constants import *
 from eth2spec.latest_2.classes import *
@@ -442,5 +394,3 @@ def process_light_client_update(
         # Normal update through 2/3 threshold
         apply_light_client_update(store, update)
         store.best_valid_update = None
-
-

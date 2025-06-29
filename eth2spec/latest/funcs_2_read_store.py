@@ -8,7 +8,6 @@ from eth2spec.latest.funcs_2_read_state import *
 from eth2spec.latest.funcs_2_write_state import *
 
 
-
 def get_current_slot(store: Store) -> Slot:
     return Slot(GENESIS_SLOT + get_slots_since_genesis(store))
 
