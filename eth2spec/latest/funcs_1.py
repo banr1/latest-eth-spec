@@ -625,3 +625,28 @@ def is_valid_light_client_header(header: LightClientHeader) -> bool:
         index=get_subtree_index(EXECUTION_PAYLOAD_GINDEX),
         root=header.beacon.body_root,
     )
+
+
+def compute_sync_committee_period(epoch: Epoch) -> uint64:
+    return epoch // EPOCHS_PER_SYNC_COMMITTEE_PERIOD
+
+
+def current_sync_committee_gindex_at_slot(slot: Slot) -> GeneralizedIndex:
+    epoch = compute_epoch_at_slot(slot)
+
+    # [Modified in Electra]
+    if epoch >= config.ELECTRA_FORK_EPOCH:
+        return CURRENT_SYNC_COMMITTEE_GINDEX_ELECTRA
+    return CURRENT_SYNC_COMMITTEE_GINDEX
+
+
+def is_valid_normalized_merkle_branch(
+    leaf: Bytes32, branch: Sequence[Bytes32], gindex: GeneralizedIndex, root: Root
+) -> bool:
+    depth = floorlog2(gindex)
+    index = get_subtree_index(gindex)
+    num_extra = len(branch) - depth
+    for i in range(num_extra):
+        if branch[i] != Bytes32():
+            return False
+    return is_valid_merkle_branch(leaf, branch[num_extra:], depth, index, root)

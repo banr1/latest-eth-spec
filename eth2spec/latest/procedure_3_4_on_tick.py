@@ -4,8 +4,10 @@ from eth2spec.latest.classes_0 import *
 from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
-from eth2spec.latest.funcs_2 import *
+from eth2spec.latest.funcs_2_write_state import *
+from eth2spec.latest.funcs_2_read_store import *
 from eth2spec.latest.funcs_2_read_state import *
+from eth2spec.latest.funcs_3_4_checkpoint import *
 
 
 def on_tick(store: Store, time: uint64) -> None:

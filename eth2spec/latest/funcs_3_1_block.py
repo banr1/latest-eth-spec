@@ -6,8 +6,12 @@ from eth2spec.latest.classes_0 import *
 from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
-from eth2spec.latest.funcs_2 import *
+from eth2spec.latest.funcs_2_write_state import *
+from eth2spec.latest.funcs_2_read_store import *
 from eth2spec.latest.funcs_2_read_state import *
+
+
+EXECUTION_ENGINE = NoopExecutionEngine()
 
 
 def process_block(state: BeaconState, block: BeaconBlock) -> None:
