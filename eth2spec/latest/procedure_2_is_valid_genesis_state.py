@@ -5,6 +5,7 @@ from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2 import *
+from eth2spec.latest.funcs_2_read_state import *
 
 
 def is_valid_genesis_state(state: BeaconState) -> bool:

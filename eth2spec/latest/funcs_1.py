@@ -600,3 +600,28 @@ def cache_this(key_fn, value_fn, lru_size):  # type: ignore
 
 def compute_merkle_proof(object: SSZObject, index: GeneralizedIndex) -> list[Bytes32]:
     return build_proof(object.get_backing(), index)
+
+
+def is_valid_light_client_header(header: LightClientHeader) -> bool:
+    epoch = compute_epoch_at_slot(header.beacon.slot)
+
+    # [New in Deneb:EIP4844]
+    if epoch < config.DENEB_FORK_EPOCH:
+        if header.execution.blob_gas_used != uint64(0):
+            return False
+        if header.execution.excess_blob_gas != uint64(0):
+            return False
+
+    if epoch < config.CAPELLA_FORK_EPOCH:
+        return (
+            header.execution == ExecutionPayloadHeader()
+            and header.execution_branch == ExecutionBranch()
+        )
+
+    return is_valid_merkle_branch(
+        leaf=get_lc_execution_root(header),
+        branch=header.execution_branch,
+        depth=floorlog2(EXECUTION_PAYLOAD_GINDEX),
+        index=get_subtree_index(EXECUTION_PAYLOAD_GINDEX),
+        root=header.beacon.body_root,
+    )

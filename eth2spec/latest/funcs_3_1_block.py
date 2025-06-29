@@ -1,4 +1,4 @@
-from typing import Any, Callable, Tuple
+from typing import Any, Callable
 
 from eth2spec.latest.constants_0 import *
 from eth2spec.latest.funcs_0 import *
@@ -7,6 +7,7 @@ from eth2spec.latest.constants_1 import *
 from eth2spec.latest.classes_1 import *
 from eth2spec.latest.funcs_1 import *
 from eth2spec.latest.funcs_2 import *
+from eth2spec.latest.funcs_2_read_state import *
 
 
 def process_block(state: BeaconState, block: BeaconBlock) -> None:
