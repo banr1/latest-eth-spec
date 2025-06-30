@@ -377,54 +377,54 @@ class PendingConsolidation(Container):
 
 
 class BeaconState(Container):
-    genesis_time: uint64
-    genesis_validators_root: Root
-    slot: Slot
-    fork: Fork
-    latest_block_header: BeaconBlockHeader
-    block_roots: Vector[Root, SLOTS_PER_HISTORICAL_ROOT]
-    state_roots: Vector[Root, SLOTS_PER_HISTORICAL_ROOT]
-    historical_roots: List[Root, HISTORICAL_ROOTS_LIMIT]
-    eth1_data: Eth1Data
-    eth1_data_votes: List[Eth1Data, EPOCHS_PER_ETH1_VOTING_PERIOD * SLOTS_PER_EPOCH]
-    eth1_deposit_index: uint64
-    validators: List[Validator, VALIDATOR_REGISTRY_LIMIT]
-    balances: List[Gwei, VALIDATOR_REGISTRY_LIMIT]
-    randao_mixes: Vector[Bytes32, EPOCHS_PER_HISTORICAL_VECTOR]
-    slashings: Vector[Gwei, EPOCHS_PER_SLASHINGS_VECTOR]
-    previous_epoch_participation: List[ParticipationFlags, VALIDATOR_REGISTRY_LIMIT]
-    current_epoch_participation: List[ParticipationFlags, VALIDATOR_REGISTRY_LIMIT]
-    justification_bits: Bitvector[JUSTIFICATION_BITS_LENGTH]
-    previous_justified_checkpoint: Checkpoint
-    current_justified_checkpoint: Checkpoint
-    finalized_checkpoint: Checkpoint
-    inactivity_scores: List[uint64, VALIDATOR_REGISTRY_LIMIT]
-    current_sync_committee: SyncCommittee
-    next_sync_committee: SyncCommittee
-    latest_execution_payload_header: ExecutionPayloadHeader
-    next_withdrawal_index: WithdrawalIndex
-    next_withdrawal_validator_index: ValidatorIndex
-    historical_summaries: List[HistoricalSummary, HISTORICAL_ROOTS_LIMIT]
+    genesis_time: uint64 # immutable
+    genesis_validators_root: Root # immutable
+    slot: Slot # `process_slots`
+    fork: Fork # only upgrade functions
+    latest_block_header: BeaconBlockHeader # `process_block_header`
+    block_roots: Vector[Root, SLOTS_PER_HISTORICAL_ROOT] # `process_slot`
+    state_roots: Vector[Root, SLOTS_PER_HISTORICAL_ROOT] # `process_slot`
+    historical_roots: List[Root, HISTORICAL_ROOTS_LIMIT] # `process_historical_roots_update`
+    eth1_data: Eth1Data # `process_eth1_data`
+    eth1_data_votes: List[Eth1Data, EPOCHS_PER_ETH1_VOTING_PERIOD * SLOTS_PER_EPOCH] # `process_eth1_data`, `process_eth1_data_reset`
+    eth1_deposit_index: uint64 # `process_deposit`
+    validators: List[Validator, VALIDATOR_REGISTRY_LIMIT] # `add_validator_to_registry`, `slash_validator`, `switch_to_compounding_validator`, `process_bls_to_execution_change`, `process_effective_balance_updates`, `process_registry_updates`, `initiate_validator_exit`
+    balances: List[Gwei, VALIDATOR_REGISTRY_LIMIT] # `increase_balance`, `decrease_balance`, `add_validator_to_registry`, `queue_excess_active_balance`
+    randao_mixes: Vector[Bytes32, EPOCHS_PER_HISTORICAL_VECTOR] # `process_randao`, `process_randao_mixes_reset`
+    slashings: Vector[Gwei, EPOCHS_PER_SLASHINGS_VECTOR] # `slash_validator`, `process_slashings_reset`
+    previous_epoch_participation: List[ParticipationFlags, VALIDATOR_REGISTRY_LIMIT] # `add_validator_to_registry`, `process_participation_flag_updates`, `process_attestation`, `translate_participation`
+    current_epoch_participation: List[ParticipationFlags, VALIDATOR_REGISTRY_LIMIT] # `add_validator_to_registry`, `process_participation_flag_updates`, `process_attestation`
+    justification_bits: Bitvector[JUSTIFICATION_BITS_LENGTH] # `weigh_justification_and_finalization`
+    previous_justified_checkpoint: Checkpoint # `weigh_justification_and_finalization`
+    current_justified_checkpoint: Checkpoint # `weigh_justification_and_finalization`
+    finalized_checkpoint: Checkpoint # `weigh_justification_and_finalization`
+    inactivity_scores: List[uint64, VALIDATOR_REGISTRY_LIMIT] # `add_validator_to_registry`, `process_inactivity_updates`
+    current_sync_committee: SyncCommittee # `process_sync_committee_updates`
+    next_sync_committee: SyncCommittee # `process_sync_committee_updates`
+    latest_execution_payload_header: ExecutionPayloadHeader # `process_execution_payload`
+    next_withdrawal_index: WithdrawalIndex # `process_withdrawals`
+    next_withdrawal_validator_index: ValidatorIndex # `process_withdrawals`
+    historical_summaries: List[HistoricalSummary, HISTORICAL_ROOTS_LIMIT] # `process_historical_summaries_update`
     # [New in Electra:EIP6110]
-    deposit_requests_start_index: uint64
+    deposit_requests_start_index: uint64 # `process_deposit_request`
     # [New in Electra:EIP7251]
-    deposit_balance_to_consume: Gwei
+    deposit_balance_to_consume: Gwei # `process_pending_deposits`
     # [New in Electra:EIP7251]
-    exit_balance_to_consume: Gwei
+    exit_balance_to_consume: Gwei # `compute_exit_epoch_and_update_churn`
     # [New in Electra:EIP7251]
-    earliest_exit_epoch: Epoch
+    earliest_exit_epoch: Epoch # `compute_exit_epoch_and_update_churn`
     # [New in Electra:EIP7251]
-    consolidation_balance_to_consume: Gwei
+    consolidation_balance_to_consume: Gwei # `compute_consolidation_epoch_and_update_churn`
     # [New in Electra:EIP7251]
-    earliest_consolidation_epoch: Epoch
+    earliest_consolidation_epoch: Epoch # `compute_consolidation_epoch_and_update_churn`
     # [New in Electra:EIP7251]
-    pending_deposits: List[PendingDeposit, PENDING_DEPOSITS_LIMIT]
+    pending_deposits: List[PendingDeposit, PENDING_DEPOSITS_LIMIT] # `apply_deposit`, `process_pending_deposits`, `queue_excess_active_balance`, `process_deposit_request`
     # [New in Electra:EIP7251]
     pending_partial_withdrawals: List[
         PendingPartialWithdrawal, PENDING_PARTIAL_WITHDRAWALS_LIMIT
-    ]
+    ] # `process_withdrawal_request`, `process_withdrawals`
     # [New in Electra:EIP7251]
-    pending_consolidations: List[PendingConsolidation, PENDING_CONSOLIDATIONS_LIMIT]
+    pending_consolidations: List[PendingConsolidation, PENDING_CONSOLIDATIONS_LIMIT] # `process_pending_consolidations`, `process_consolidation_request`
 
 
 class DepositRequest(Container):
@@ -505,20 +505,20 @@ class LatestMessage(object):
 
 @dataclass
 class Store(object):
-    time: uint64
-    genesis_time: uint64
-    justified_checkpoint: Checkpoint
-    finalized_checkpoint: Checkpoint
-    unrealized_justified_checkpoint: Checkpoint
-    unrealized_finalized_checkpoint: Checkpoint
-    proposer_boost_root: Root
-    equivocating_indices: Set[ValidatorIndex]
-    blocks: Dict[Root, BeaconBlock] = field(default_factory=dict)
-    block_states: Dict[Root, BeaconState] = field(default_factory=dict)
-    block_timeliness: Dict[Root, boolean] = field(default_factory=dict)
-    checkpoint_states: Dict[Checkpoint, BeaconState] = field(default_factory=dict)
-    latest_messages: Dict[ValidatorIndex, LatestMessage] = field(default_factory=dict)
-    unrealized_justifications: Dict[Root, Checkpoint] = field(default_factory=dict)
+    time: uint64 # `on_tick_per_slot`
+    genesis_time: uint64 # immutable
+    justified_checkpoint: Checkpoint # `update_checkpoints`
+    finalized_checkpoint: Checkpoint # `update_checkpoints`
+    unrealized_justified_checkpoint: Checkpoint # `update_unrealized_checkpoints`
+    unrealized_finalized_checkpoint: Checkpoint # `update_unrealized_checkpoints`
+    proposer_boost_root: Root # `on_tick_per_slot`, `on_block`
+    equivocating_indices: Set[ValidatorIndex] # `on_attester_slashing`
+    blocks: Dict[Root, BeaconBlock] = field(default_factory=dict) # `on_block`
+    block_states: Dict[Root, BeaconState] = field(default_factory=dict) # `on_block`
+    block_timeliness: Dict[Root, boolean] = field(default_factory=dict) # `on_block`
+    checkpoint_states: Dict[Checkpoint, BeaconState] = field(default_factory=dict) # `store_target_checkpoint_state`
+    latest_messages: Dict[ValidatorIndex, LatestMessage] = field(default_factory=dict) # `update_latest_messages`
+    unrealized_justifications: Dict[Root, Checkpoint] = field(default_factory=dict) # `compute_pulled_up_tip`
 
 
 @dataclass

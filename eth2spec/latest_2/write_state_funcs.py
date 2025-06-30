@@ -97,6 +97,67 @@ def process_eth1_data(state: BeaconState, body: BeaconBlockBody) -> None:
         state.eth1_data = body.eth1_data
 
 
+# state.current_epoch_participation
+# state.previous_epoch_participation
+def process_attestation(state: BeaconState, attestation: Attestation) -> None:
+    data = attestation.data
+    assert data.target.epoch in (get_previous_epoch(state), get_current_epoch(state))
+    assert data.target.epoch == compute_epoch_at_slot(data.slot)
+    assert data.slot + MIN_ATTESTATION_INCLUSION_DELAY <= state.slot
+
+    # [Modified in Electra:EIP7549]
+    assert data.index == 0
+    committee_indices = get_committee_indices(attestation.committee_bits)
+    committee_offset = 0
+    for committee_index in committee_indices:
+        assert committee_index < get_committee_count_per_slot(state, data.target.epoch)
+        committee = get_beacon_committee(state, data.slot, committee_index)
+        committee_attesters = set(
+            attester_index
+            for i, attester_index in enumerate(committee)
+            if attestation.aggregation_bits[committee_offset + i]
+        )
+        assert len(committee_attesters) > 0
+        committee_offset += len(committee)
+
+    # Bitfield length matches total number of participants
+    assert len(attestation.aggregation_bits) == committee_offset
+
+    # Participation flag indices
+    participation_flag_indices = get_attestation_participation_flag_indices(
+        state, data, state.slot - data.slot
+    )
+
+    # Verify signature
+    assert is_valid_indexed_attestation(
+        state, get_indexed_attestation(state, attestation)
+    )
+
+    # Update epoch participation flags
+    if data.target.epoch == get_current_epoch(state):
+        epoch_participation = state.current_epoch_participation
+    else:
+        epoch_participation = state.previous_epoch_participation
+
+    proposer_reward_numerator = 0
+    for index in get_attesting_indices(state, attestation):
+        for flag_index, weight in enumerate(PARTICIPATION_FLAG_WEIGHTS):
+            if flag_index in participation_flag_indices and not has_flag(
+                epoch_participation[index], flag_index
+            ):
+                epoch_participation[index] = add_flag(
+                    epoch_participation[index], flag_index
+                )
+                proposer_reward_numerator += get_base_reward(state, index) * weight
+
+    # Reward proposer
+    proposer_reward_denominator = (
+        (WEIGHT_DENOMINATOR - PROPOSER_WEIGHT) * WEIGHT_DENOMINATOR // PROPOSER_WEIGHT
+    )
+    proposer_reward = Gwei(proposer_reward_numerator // proposer_reward_denominator)
+    increase_balance(state, get_beacon_proposer_index(state), proposer_reward)
+
+
 # state.validators
 # state.balances
 # state.previous_epoch_participation
@@ -125,8 +186,9 @@ def add_validator_to_registry(
 
 # state.current_justified_checkpoint
 # state.justification_bits[0]
-# state.justification_bits[1]
+# state.justification_bits[1:]
 # state.finalized_checkpoint
+# state.previous_justified_checkpoint
 def weigh_justification_and_finalization(
     state: BeaconState,
     total_active_balance: Gwei,
@@ -655,47 +717,6 @@ def process_withdrawal_request(
         )
 
 
-# validator.withdrawal_credentials
-def switch_to_compounding_validator(state: BeaconState, index: ValidatorIndex) -> None:
-    validator = state.validators[index]
-    validator.withdrawal_credentials = (
-        COMPOUNDING_WITHDRAWAL_PREFIX + validator.withdrawal_credentials[1:]
-    )
-    queue_excess_active_balance(state, index)
-
-
-# validator.withdrawal_credentials
-def process_bls_to_execution_change(
-    state: BeaconState, signed_address_change: SignedBLSToExecutionChange
-) -> None:
-    address_change = signed_address_change.message
-
-    assert address_change.validator_index < len(state.validators)
-
-    validator = state.validators[address_change.validator_index]
-
-    assert validator.withdrawal_credentials[:1] == BLS_WITHDRAWAL_PREFIX
-    assert (
-        validator.withdrawal_credentials[1:] == hash(address_change.from_bls_pubkey)[1:]
-    )
-
-    # Fork-agnostic domain since address changes are valid across forks
-    domain = compute_domain(
-        DOMAIN_BLS_TO_EXECUTION_CHANGE,
-        genesis_validators_root=state.genesis_validators_root,
-    )
-    signing_root = compute_signing_root(address_change, domain)
-    assert bls.Verify(
-        address_change.from_bls_pubkey, signing_root, signed_address_change.signature
-    )
-
-    validator.withdrawal_credentials = (
-        ETH1_ADDRESS_WITHDRAWAL_PREFIX
-        + b"\x00" * 11
-        + address_change.to_execution_address
-    )
-
-
 # state.pending_consolidations
 def process_pending_consolidations(state: BeaconState) -> None:
     next_epoch = Epoch(get_current_epoch(state) + 1)
@@ -902,6 +923,47 @@ def translate_participation(
                 epoch_participation[index] = add_flag(
                     epoch_participation[index], flag_index
                 )
+
+
+# validator.withdrawal_credentials
+def switch_to_compounding_validator(state: BeaconState, index: ValidatorIndex) -> None:
+    validator = state.validators[index]
+    validator.withdrawal_credentials = (
+        COMPOUNDING_WITHDRAWAL_PREFIX + validator.withdrawal_credentials[1:]
+    )
+    queue_excess_active_balance(state, index)
+
+
+# validator.withdrawal_credentials
+def process_bls_to_execution_change(
+    state: BeaconState, signed_address_change: SignedBLSToExecutionChange
+) -> None:
+    address_change = signed_address_change.message
+
+    assert address_change.validator_index < len(state.validators)
+
+    validator = state.validators[address_change.validator_index]
+
+    assert validator.withdrawal_credentials[:1] == BLS_WITHDRAWAL_PREFIX
+    assert (
+        validator.withdrawal_credentials[1:] == hash(address_change.from_bls_pubkey)[1:]
+    )
+
+    # Fork-agnostic domain since address changes are valid across forks
+    domain = compute_domain(
+        DOMAIN_BLS_TO_EXECUTION_CHANGE,
+        genesis_validators_root=state.genesis_validators_root,
+    )
+    signing_root = compute_signing_root(address_change, domain)
+    assert bls.Verify(
+        address_change.from_bls_pubkey, signing_root, signed_address_change.signature
+    )
+
+    validator.withdrawal_credentials = (
+        ETH1_ADDRESS_WITHDRAWAL_PREFIX
+        + b"\x00" * 11
+        + address_change.to_execution_address
+    )
 
 
 # validator.effective_balance
@@ -1139,65 +1201,6 @@ def process_attester_slashing(
             slash_validator(state, index)
             slashed_any = True
     assert slashed_any
-
-
-def process_attestation(state: BeaconState, attestation: Attestation) -> None:
-    data = attestation.data
-    assert data.target.epoch in (get_previous_epoch(state), get_current_epoch(state))
-    assert data.target.epoch == compute_epoch_at_slot(data.slot)
-    assert data.slot + MIN_ATTESTATION_INCLUSION_DELAY <= state.slot
-
-    # [Modified in Electra:EIP7549]
-    assert data.index == 0
-    committee_indices = get_committee_indices(attestation.committee_bits)
-    committee_offset = 0
-    for committee_index in committee_indices:
-        assert committee_index < get_committee_count_per_slot(state, data.target.epoch)
-        committee = get_beacon_committee(state, data.slot, committee_index)
-        committee_attesters = set(
-            attester_index
-            for i, attester_index in enumerate(committee)
-            if attestation.aggregation_bits[committee_offset + i]
-        )
-        assert len(committee_attesters) > 0
-        committee_offset += len(committee)
-
-    # Bitfield length matches total number of participants
-    assert len(attestation.aggregation_bits) == committee_offset
-
-    # Participation flag indices
-    participation_flag_indices = get_attestation_participation_flag_indices(
-        state, data, state.slot - data.slot
-    )
-
-    # Verify signature
-    assert is_valid_indexed_attestation(
-        state, get_indexed_attestation(state, attestation)
-    )
-
-    # Update epoch participation flags
-    if data.target.epoch == get_current_epoch(state):
-        epoch_participation = state.current_epoch_participation
-    else:
-        epoch_participation = state.previous_epoch_participation
-
-    proposer_reward_numerator = 0
-    for index in get_attesting_indices(state, attestation):
-        for flag_index, weight in enumerate(PARTICIPATION_FLAG_WEIGHTS):
-            if flag_index in participation_flag_indices and not has_flag(
-                epoch_participation[index], flag_index
-            ):
-                epoch_participation[index] = add_flag(
-                    epoch_participation[index], flag_index
-                )
-                proposer_reward_numerator += get_base_reward(state, index) * weight
-
-    # Reward proposer
-    proposer_reward_denominator = (
-        (WEIGHT_DENOMINATOR - PROPOSER_WEIGHT) * WEIGHT_DENOMINATOR // PROPOSER_WEIGHT
-    )
-    proposer_reward = Gwei(proposer_reward_numerator // proposer_reward_denominator)
-    increase_balance(state, get_beacon_proposer_index(state), proposer_reward)
 
 
 def process_voluntary_exit(
