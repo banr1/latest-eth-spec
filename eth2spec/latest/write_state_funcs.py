@@ -8,9 +8,9 @@ from eth2spec.utils import bls
 from eth2spec.utils.hash_function import hash
 from eth2spec.phase0 import mainnet as phase0
 
-from eth2spec.latest_2.constants import *
-from eth2spec.latest_2.classes import *
-from eth2spec.latest_2.read_funcs import *
+from eth2spec.latest.constants import *
+from eth2spec.latest.classes import *
+from eth2spec.latest.read_funcs import *
 
 
 EXECUTION_ENGINE = NoopExecutionEngine()

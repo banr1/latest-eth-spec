@@ -34,9 +34,9 @@ from eth2spec.test.helpers.merkle import build_proof
 
 from eth2spec.altair import mainnet as altair
 
-from eth2spec.latest_2.constants import *
-from eth2spec.latest_2.classes import *
-from eth2spec.latest_2.read_funcs import *
+from eth2spec.latest.constants import *
+from eth2spec.latest.classes import *
+from eth2spec.latest.read_funcs import *
 
 
 def saturating_sub(a: int, b: int) -> int:

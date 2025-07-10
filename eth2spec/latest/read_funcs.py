@@ -17,8 +17,8 @@ from eth2spec.utils.hash_function import hash
 from eth2spec.capella import mainnet as capella
 from eth2spec.deneb import mainnet as deneb
 
-from eth2spec.latest_2.constants import *
-from eth2spec.latest_2.classes import *
+from eth2spec.latest.constants import *
+from eth2spec.latest.classes import *
 
 
 def compute_slots_since_epoch_start(slot: Slot) -> int:

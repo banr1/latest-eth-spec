@@ -23,8 +23,8 @@ from eth2spec.utils.ssz.ssz_typing import (
     ByteVector,
 )
 
-from eth2spec.latest_2.constants import *
-from eth2spec.latest_2.classes import *
+from eth2spec.latest.constants import *
+from eth2spec.latest.classes import *
 
 
 class Fork(Container):

@@ -5,10 +5,10 @@ from typing import Sequence
 from eth2spec.utils.ssz.ssz_impl import hash_tree_root, copy
 from eth2spec.utils.ssz.ssz_typing import View, uint64
 
-from eth2spec.latest_2.constants import *
-from eth2spec.latest_2.classes import *
-from eth2spec.latest_2.read_funcs import *
-from eth2spec.latest_2.write_state_funcs import *
+from eth2spec.latest.constants import *
+from eth2spec.latest.classes import *
+from eth2spec.latest.read_funcs import *
+from eth2spec.latest.write_state_funcs import *
 
 
 ############## 直接的 ##############
